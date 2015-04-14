@@ -106,10 +106,12 @@ if __name__ == '__main__':
     print 'types = %s ' % types
 
     th = read_csv_header(train)
+    th = th[1:len(th)]
     t = transform_data(rows_train)
     write_csv('train_cleaned.csv', t, th)
 
     th = read_csv_header(test)
+    th = th[1:len(th)]
     t = transform_data(rows_test)
     write_csv('test_cleaned.csv', t, th)
 
