@@ -66,8 +66,8 @@ def pca_transform(train, test, pca_train, pca_test):
 	header = ['attr' + str(i) for i in range(len(reduced[0]))]
 
 	# write data
-	process.write_csv(pca_train, train_reduced, header + ['revenue'])
-	process.write_csv(pca_test, test_reduced, header)
+	process.write_csv(pca_train, train_reduced.tolist(), header + ['revenue'])
+	process.write_csv(pca_test, test_reduced.tolist(), header)
 
 
 if __name__ == "__main__":
