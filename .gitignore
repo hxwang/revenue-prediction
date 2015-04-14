@@ -2,3 +2,8 @@ src/solution.csv
 src/solution.zip
 
 .DS_Store
+
+data/test_cleaned.csv
+data/train_cleaned.csv
+data/test_pca.csv
+data/train_pca.csv

@@ -37,13 +37,8 @@ def pca_transform(train, test, pca_train, pca_test):
 	print 'rows_train.shape', rows_train.shape
 	print 'revenue.shape', revenue.shape
 	# print revenue
-<<<<<<< HEAD
-
 
 	rows_test = np.array(rows_test)	
-=======
-	
->>>>>>> refs/remotes/origin/master
 	rows_test = rows_test[:, skip_cols:len(rows_test[0])]
 	print 'rows_test.shape', rows_test.shape
 
