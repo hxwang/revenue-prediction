@@ -1,5 +1,5 @@
 ## Document
 
 
-- [Proposal](./Proposal/ProjectDiscription.MD)
+- [Proposal](./proposal/ProjectDiscription.MD)
 - [Report](./report)
