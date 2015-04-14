@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import csv
 import sys
 import math
@@ -20,27 +22,53 @@ def pca_transform(train, test, pca_train, pca_test):
 	global rows_train
 	global rows_test
 
-	# read data
-	rows_train = process.read_csv_all(train)
-	rows_test = process.read_csv_all(test)
+	skip_cols = 4
 
+	# read data
+	rows_train = process.read_csv(train)
+	rows_test = process.read_csv(test)
+
+	rows_train = np.array(rows_train)
+	# seperate revenue
+	revenue = rows_train[:,len(rows_train[0])-1]
+	rows_train = rows_train[:, skip_cols:len(rows_train[0])-1]	
+	print 'rows_train.shape', rows_train.shape
+	print 'revenue.shape', revenue.shape
+	print revenue
+
+
+	rows_test = np.array(rows_test)	
+	rows_test = rows_test[:, skip_cols:len(rows_test[0])]
+	print 'rows_test.shape', rows_test.shape
+
+	rows_all = np.concatenate((rows_train, rows_test), axis=0)
+	print 'rows_all.shape', rows_all.shape
 
 	# do pca 
-	pca = decomposition.PCA()
+	pca = decomposition.PCA(n_components=15)	
 	
-	train_reduced = pca.fit_transform(rows_train)
-	test_reduced = pca.transform(rows_test)
+	reduced = pca.fit_transform(rows_all)
+	print pca.explained_variance_ratio_ 
+
+	train_reduced = reduced[0:len(rows_train), :]
+	# put revenue back
+	train_reduced = np.c_[train_reduced, revenue]
+	print 'train_reduced.shape', train_reduced.shape
+
+	test_reduced = reduced[len(rows_train):len(reduced), :]
+	print 'test_reduced.shape', test_reduced.shape
+
+	# create csv header
+	header = ['attr' + str(i) for i in range(len(reduced[0]))]
 
 	# write data
-	pca.write_csv(pca_train, train_reduced)
-	pca.write_csv(pca_test, test_reduced)
-
-
+	process.write_csv(pca_train, train_reduced, header + ['revenue'])
+	process.write_csv(pca_test, test_reduced, header)
 
 
 if __name__ == "__main__":
-	train = 'train.csv'
-	test = 'test.csv'
+	train = 'train_cleaned.csv'
+	test = 'test_cleaned.csv'
 	pca_train = 'train_pca.csv'
 	pca_test = 'test_pca.csv'
 	pca_transform(train, test, pca_train, pca_test)
