@@ -4,6 +4,7 @@ import sys
 import math
 import numpy as np
 from sklearn import svm
+from sklearn import kernel_ridge
 
 '''
 produce model 
@@ -14,13 +15,18 @@ return: model
 def fit(X, y):
     print 'fitting the model...'
     
-    # 2.3039010413 @ 2:45pm 4/14/2015 by huahua
-    svr = svm.NuSVR(nu=0.45, C=8e6, degree=2, gamma=0.006)
+    # 2.56756449604 @ 3:11pm 4/14/2015 by huahua skip_cols = 4, k = 5
+    # model = kernel_ridge.KernelRidge(alpha=4e2, kernel='linear')
 
-    #svr = svm.SVR(C=4e6, degree=3, gamma=0.0)
-    svr.fit(X, y)
+    # 2.3039010413 @ 2:45pm 4/14/2015 by huahua skip_cols = 4, k = 5
+    model = svm.NuSVR(nu=0.45, C=8e6, degree=2, gamma=0.006)
 
-    return svr
+    # ???
+    #model = model.SVR(C=4e6, degree=3, gamma=0.0)
+
+    model.fit(X, y)
+
+    return model
 
 
 '''
@@ -151,7 +157,7 @@ if __name__ == '__main__':
     y_train = train_data[:, len(train_data[0])-1].tolist()
     
     # calcualte average Root Mean Squared Error (RMSE)
-    avg_score = k_folds(X_train, y_train)
+    avg_score = k_folds(X_train, y_train, k=5)
 
     print avg_score / 1e6
 
