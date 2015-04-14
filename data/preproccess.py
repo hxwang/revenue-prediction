@@ -40,6 +40,13 @@ def get_all_rows(train, test):
 
     return rows
 
+'''
+rows: n*m array
+columnId: int
+return: dictionary
+E.g.,
+{'a', 'b', 'c', 'a', 'b', 'd'} => {'a':0, 'b':1, 'c':2, 'd':3}
+'''
 def make_dict(rows, columnId):
     d = {}
     for row in rows:
@@ -58,6 +65,10 @@ def scan_city_group(rows):
 def scan_type(rows):
     return make_dict(rows, 4)
 
+
+'''
+transform nominal value to integer value
+'''
 def transform_data(rows):
 
     global city_names
@@ -67,6 +78,7 @@ def transform_data(rows):
     for row in rows:        
         row[1] = datetime.datetime.strptime(row[1], '%m/%d/%Y').date()
         row[1] = int(time.mktime(row[1].timetuple()))
+        # transform using dictionary city_names, city_groups, types
         row[2] = city_names[row[2]]
         row[3] = city_groups[row[3]]
         row[4] = types[row[4]] 

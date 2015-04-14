@@ -5,16 +5,27 @@ import math
 import numpy as np
 from sklearn import svm
 
-# fit a model
+'''
+produce model 
+X: record, n*m matrix
+Y: revenue, n*1 matrix
+return: model
+'''
 def fit(X, y):
     print 'fitting the model...'
     
-    svr = svm.SVR(C=4e6, degree=3, gamma=0.1)
+    svr = svm.SVR(C=4e6, degree=10, gamma=0.03)
     svr.fit(X, y)
 
     return svr
 
-# predict based a model
+
+'''
+predict using a given model
+model: given model
+X: record to predict, n*m matrix
+return: predicted revenue, n*1 matrix
+'''
 def predict(model, X):
     print 'predicting...'
     
@@ -22,7 +33,12 @@ def predict(model, X):
 
     return y
 
-# evaluate the result
+'''
+evaluate predicted result
+y_predict: predicted value, n*1 matrix
+y_truth: real value, n*1 matrix
+return: Root Mean Squared Error (RMSE)
+'''
 def evaluate(y_predict, y_truth):
 
     print 'evaluating...'
@@ -37,7 +53,10 @@ def evaluate(y_predict, y_truth):
 
     return rmse
 
-# read a csv file into rows
+'''
+read file, e.g., training file, testing file
+return: n*m matrix
+'''
 def read_csv(filename):    
     rows = []
     with open(filename, 'r') as f:
@@ -46,7 +65,10 @@ def read_csv(filename):
             rows.append(row)
     return rows
 
-# write the preidtion into solution file
+'''
+write solution file
+format: id, predicted value
+'''
 def write_solution(filename, y):
     print 'writeing solution to %s' % filename
     with open(filename, 'w') as f:
@@ -55,6 +77,11 @@ def write_solution(filename, y):
             f.write(str(i)+','+str(y[i])+'\n')
     print 'done'
 
+
+'''
+k fold validation
+return: average Root Mean Squared Eroor (RMSE)
+'''
 def k_folds(X, y, k = 5, skip_cols=0):
     size = len(X) / k
     col = len(X[0])
@@ -95,33 +122,43 @@ def k_folds(X, y, k = 5, skip_cols=0):
     return total_score
 
 
+
+def run_test(X_train, y_train, X_test):
+    # rebuild the model
+    svr = fit(X_train, y_train)
+
+    solution_filename = 'solution.csv'
+
+    y_test_predict = predict(svr, X_test)
+
+    write_solution(solution_filename, y_test_predict)
+
+
 if __name__ == '__main__':
     train_filename = '../data/train_cleaned.csv'
     test_filename = '../data/test_cleaned.csv'
 
+    # column number to skip
     skip_cols = 4
 
+    # read training data and convert to numpy array
     train_data = np.array(read_csv(train_filename))
     
+    # split training data to (record) and (predicted value)
     X_train = train_data[:, skip_cols:len(train_data[0])-1].tolist()
     y_train = train_data[:, len(train_data[0])-1].tolist()
     
+    # calcualte average Root Mean Squared Error (RMSE)
     avg_score = k_folds(X_train, y_train)
 
     print avg_score
 
     ################################################
+    # run test
 
     if len(sys.argv) >= 2 and sys.argv[1] == '-t':
-
-        # rebuild the model
-        svr = fit(X_train, y_train)
-
         X_test = np.array(read_csv(test_filename))
         X_test = X_test[:, skip_cols:len(train_data[0])].tolist()
+        run_test(X_train, y_train, X_test)
 
-        solution_filename = 'solution.csv'
-
-        y_test_predict = predict(svr, X_test)
-
-        write_solution(solution_filename, y_test_predict)
+       
