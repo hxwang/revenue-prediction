@@ -12,6 +12,17 @@ rows_train = []
 rows_test = []
 rows = []
 
+
+def read_csv_all(filename):
+    rows = []
+    with open(filename, 'r') as f:
+        reader = csv.reader(f, delimiter=',')
+        for row in reader:
+            rows.append(row)
+    return rows
+
+
+
 def read_csv_header(filename):
     with open(filename, 'r') as f:
         reader = csv.reader(f, delimiter=',')
