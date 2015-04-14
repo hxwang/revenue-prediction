@@ -34,7 +34,7 @@ def pca_transform(train, test, pca_train, pca_test):
 	rows_train = rows_train[:, skip_cols:len(rows_train[0])-1]	
 	print 'rows_train.shape', rows_train.shape
 	print 'revenue.shape', revenue.shape
-	print revenue
+	# print revenue
 
 
 	rows_test = np.array(rows_test)	
@@ -45,10 +45,11 @@ def pca_transform(train, test, pca_train, pca_test):
 	print 'rows_all.shape', rows_all.shape
 
 	# do pca 
-	pca = decomposition.PCA(n_components=15)	
+	pca = decomposition.PCA(n_components=22)	
 	
 	reduced = pca.fit_transform(rows_all)
-	print pca.explained_variance_ratio_ 
+	print 'variance = ', pca.explained_variance_ratio_
+	print 'total variance = ', np.sum(pca.explained_variance_ratio_)
 
 	train_reduced = reduced[0:len(rows_train), :]
 	# put revenue back
