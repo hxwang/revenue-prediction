@@ -29,18 +29,25 @@ def pca_transform(train, test, pca_train, pca_test):
 	rows_test = process.read_csv(test)
 
 	rows_train = np.array(rows_train)
+	rows_test = np.array(rows_test)	
+
 	# seperate revenue
 	revenue = rows_train[:,len(rows_train[0])-1]
 	rows_train = rows_train[:, skip_cols:len(rows_train[0])-1]	
 	print 'rows_train.shape', rows_train.shape
 	print 'revenue.shape', revenue.shape
 	# print revenue
+<<<<<<< HEAD
 
 
 	rows_test = np.array(rows_test)	
+=======
+	
+>>>>>>> refs/remotes/origin/master
 	rows_test = rows_test[:, skip_cols:len(rows_test[0])]
 	print 'rows_test.shape', rows_test.shape
 
+	# combine training and test set
 	rows_all = np.concatenate((rows_train, rows_test), axis=0)
 	print 'rows_all.shape', rows_all.shape
 
@@ -52,6 +59,7 @@ def pca_transform(train, test, pca_train, pca_test):
 	print 'total variance = ', np.sum(pca.explained_variance_ratio_)
 
 	train_reduced = reduced[0:len(rows_train), :]
+
 	# put revenue back
 	train_reduced = np.c_[train_reduced, revenue]
 	print 'train_reduced.shape', train_reduced.shape
