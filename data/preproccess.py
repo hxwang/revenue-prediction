@@ -38,13 +38,14 @@ def read_csv(filename):
             rows.append(row)
     return rows
 
-def write_csv(filename, rows, header=None):
+def write_csv(filename, rows, header=None, removeId=False):
+    start_idx = 1 if removeId else 0
     with open(filename, 'w') as f:
         writer = csv.writer(f, delimiter=',')
         if header != None:            
             writer.writerow(header)
         for row in rows:
-            writer.writerow(row[1:len(row)])            
+            writer.writerow(row[start_idx:len(row)])            
 
 def get_all_rows(train, test):
 
@@ -119,10 +120,10 @@ if __name__ == '__main__':
     th = read_csv_header(train)
     th = th[1:len(th)]
     t = transform_data(rows_train)
-    write_csv('train_cleaned.csv', t, th)
+    write_csv('train_cleaned.csv', t, th, True)
 
     th = read_csv_header(test)
     th = th[1:len(th)]
     t = transform_data(rows_test)
-    write_csv('test_cleaned.csv', t, th)
+    write_csv('test_cleaned.csv', t, th, True)
 
