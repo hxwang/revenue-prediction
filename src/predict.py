@@ -14,7 +14,10 @@ return: model
 def fit(X, y):
     print 'fitting the model...'
     
-    svr = svm.SVR(C=4e6, degree=10, gamma=0.03)
+    # 2.3039010413 @ 2:45pm 4/14/2015 by huahua
+    svr = svm.NuSVR(nu=0.45, C=8e6, degree=2, gamma=0.006)
+
+    #svr = svm.SVR(C=4e6, degree=3, gamma=0.0)
     svr.fit(X, y)
 
     return svr
@@ -101,8 +104,6 @@ def k_folds(X, y, k = 5, skip_cols=0):
         idx_test_s  = (i+k-1)*size
         idx_test_e  = (i+k)*size
 
-        print idx_train_s, idx_train_e, idx_test_e
-
         X_train = XX[idx_train_s:idx_train_e, :].tolist()
         y_train = yy[idx_train_s:idx_train_e].tolist()
 
@@ -152,7 +153,7 @@ if __name__ == '__main__':
     # calcualte average Root Mean Squared Error (RMSE)
     avg_score = k_folds(X_train, y_train)
 
-    print avg_score
+    print avg_score / 1e6
 
     ################################################
     # run test
