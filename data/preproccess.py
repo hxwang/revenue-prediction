@@ -12,6 +12,11 @@ rows_train = []
 rows_test = []
 rows = []
 
+def read_csv_header(filename):
+    with open(filename, 'r') as f:
+        reader = csv.reader(f, delimiter=',')
+        header = reader.next()
+        return header
 
 def read_csv(filename):
     rows = []
@@ -22,9 +27,11 @@ def read_csv(filename):
             rows.append(row)
     return rows
 
-def write_csv(filename, rows):
+def write_csv(filename, rows, header=None):
     with open(filename, 'w') as f:
         writer = csv.writer(f, delimiter=',')
+        if header != None:            
+            writer.writerow(header)
         for row in rows:
             writer.writerow(row[1:len(row)])            
 
@@ -98,9 +105,11 @@ if __name__ == '__main__':
     print 'city group = %s ' % city_groups
     print 'types = %s ' % types
 
+    th = read_csv_header(train)
     t = transform_data(rows_train)
-    write_csv('train_cleaned.csv', t)
+    write_csv('train_cleaned.csv', t, th)
 
+    th = read_csv_header(test)
     t = transform_data(rows_test)
-    write_csv('test_cleaned.csv', t)    
+    write_csv('test_cleaned.csv', t, th)
 

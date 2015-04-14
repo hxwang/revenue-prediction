@@ -60,7 +60,8 @@ return: n*m matrix
 def read_csv(filename):    
     rows = []
     with open(filename, 'r') as f:
-        reader = csv.reader(f, delimiter=',')     
+        reader = csv.reader(f, delimiter=',')
+        reader.next()
         for row in reader:
             rows.append(row)
     return rows
