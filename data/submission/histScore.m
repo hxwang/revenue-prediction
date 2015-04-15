@@ -36,7 +36,7 @@ set(axes1,'XGrid','on','YGrid','on');
 
 %set legend
 legend(axes1,'show','Location','NorthWest','FontSize',10,'FontWeight','bold');
-legend(strcat(filename, ':',num2str(score)));
+legend(strcat(num2str(score) , ':',filename));
 
 %set x, y Label
 set(get(axes1,'XLabel'),'String','Predicted revenue','FontSize',30,'FontWeight','bold');
