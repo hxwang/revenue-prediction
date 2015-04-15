@@ -33,8 +33,8 @@ def fit(X, y):
     # model = SGDClassifier(loss="hinge", penalty="l2")
 
     # score: 2.43654929108 weights = uniform
-    # score: 2.42790401707 weights = distance
-    model = KNeighborsRegressor(n_neighbors=10, weights='distance')
+    # score: 2.37613424202 weights = distance, test: 1730840.19422
+    model = KNeighborsRegressor(n_neighbors=20, weights='distance')
 
     # score: 3.40178270362
     # model = DecisionTreeRegressor()
