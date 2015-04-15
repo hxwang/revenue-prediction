@@ -19,16 +19,21 @@ def fit(X, y):
     # model = kernel_ridge.KernelRidge(alpha=4e2, kernel='linear')
 
     # 2.29751703569 @ 8:10pm 4/14/2015 by huahua skip_cols = 4, k = 5    
+    # test score: 1791324.54510
     model = svm.NuSVR(nu=0.45, C=0.89e7, degree=2, gamma=0.0049)
+
+    # skip_cols = 4, k = 3, score = 2.36530449815
+    # test score: 1811423.64071
+    # model = svm.NuSVR(nu=0.26, C=1.1e7, degree=2, gamma=0.024)
+
+    # skip_cols = 4, k = 3, score = 2.41825213616
+    #model = svm.SVR(C=7e6, degree=3, gamma=0.17)
 
     # 2.3901486131 @ 8:06pm 4/14/2015 by huahua skip_cols = 0, k = 5
     # model = svm.NuSVR(nu=0.5, C=4e6, degree=2, gamma=0.0006)
 
     # for pca, skip = 0, k = 5
     # model = svm.NuSVR(nu=0.32, C=6e6, degree=2, gamma=0.02)
-
-    # ???
-    #model = model.SVR(C=4e6, degree=3, gamma=0.0)
 
     model.fit(X, y)
 
@@ -166,7 +171,7 @@ if __name__ == '__main__':
     y_train = train_data[:, len(train_data[0])-1].tolist()
     
     # calcualte average Root Mean Squared Error (RMSE)
-    avg_score = k_folds(X_train, y_train, k=5)
+    avg_score = k_folds(X_train, y_train, k=3)
 
     print avg_score / 1e6
 
