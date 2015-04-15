@@ -1,5 +1,5 @@
 
-function histScore(filename, score)
+function histScore(filename, score, saveidx)
 
 %load data
 data = csvread(strcat('.\data\', filename, '.csv'), 1,1);
@@ -36,7 +36,7 @@ set(axes1,'XGrid','on','YGrid','on');
 
 %set legend
 legend(axes1,'show','Location','NorthWest','FontSize',10,'FontWeight','bold');
-legend(num2str(score));
+legend(strcat(filename, ':',num2str(score)));
 
 %set x, y Label
 set(get(axes1,'XLabel'),'String','Predicted revenue','FontSize',30,'FontWeight','bold');
@@ -48,8 +48,8 @@ set(get(axes1,'YLabel'),'String','Count','FontSize',30,'FontWeight','bold')
 set(gcf, 'PaperPosition', [0 0 13 7]); %Position plot at left hand corner with width 5 and height 5.
 set(gcf, 'PaperSize', [13 7]); %Set the paper to have width 5 and height 5.
 %saveas(gcf, 'SolarTrace_High', 'pdf') %Save figure
-saveas(gcf, strcat('.\figs\',filename), 'pdf') %Save figure  
-saveas(gcf, strcat('.\figs\',filename),'png') %Save figure 
+saveas(gcf, strcat('.\figs\',saveidx), 'pdf') %Save figure  
+saveas(gcf, strcat('.\figs\',saveidx),'png') %Save figure 
 
 
 end
