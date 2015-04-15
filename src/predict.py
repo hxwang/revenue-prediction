@@ -112,8 +112,8 @@ def k_folds(X, y, k = 5, skip_cols=0):
     y = y + y
 
     total_score = 0.0
-    XX = np.array(X)
-    yy = np.array(y)
+    XX = np.array(X, dtype=float)
+    yy = np.array(y, dtype=float)
 
     for i in range(k):
         idx_train_s = i*size
@@ -121,12 +121,11 @@ def k_folds(X, y, k = 5, skip_cols=0):
         idx_test_s  = (i+k-1)*size
         idx_test_e  = (i+k)*size
 
-        X_train = XX[idx_train_s:idx_train_e, :].tolist()
-        y_train = yy[idx_train_s:idx_train_e].tolist()
+        X_train = XX[idx_train_s:idx_train_e, :]
+        y_train = yy[idx_train_s:idx_train_e]
 
-        X_test = XX[idx_test_s:idx_test_e, :].tolist()
-        y_test = yy[idx_test_s:idx_test_e].tolist()
-
+        X_test = XX[idx_test_s:idx_test_e, :]
+        y_test = yy[idx_test_s:idx_test_e]
         
         svr = fit(X_train, y_train)
 
@@ -164,7 +163,7 @@ if __name__ == '__main__':
     skip_cols = 4
 
     # read training data and convert to numpy array
-    train_data = np.array(read_csv(train_filename))
+    train_data = np.array(read_csv(train_filename), dtype=float)
     
     # split training data to (record) and (predicted value)
     X_train = train_data[:, skip_cols:len(train_data[0])-1].tolist()
@@ -179,8 +178,6 @@ if __name__ == '__main__':
     # run test
 
     if len(sys.argv) >= 2 and sys.argv[1] == '-t':
-        X_test = np.array(read_csv(test_filename))
-        X_test = X_test[:, skip_cols:len(train_data[0])].tolist()
+        X_test = np.array(read_csv(test_filename), dtype=float)
+        X_test = X_test[:, skip_cols:len(train_data[0])]
         run_test(X_train, y_train, X_test)
-
-       
