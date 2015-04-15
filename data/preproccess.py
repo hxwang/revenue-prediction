@@ -4,6 +4,9 @@ import csv
 import sys
 import time
 import datetime
+from sklearn import preprocessing
+import numpy as np
+
 
 city_names = {}
 city_groups = {}
@@ -49,15 +52,12 @@ def write_csv(filename, rows, header=None, removeId=False):
 
 def get_all_rows(train, test):
 
-    global rows
-    global rows_train
-    global rows_test
-
     rows_train = read_csv(train)
     rows_test = read_csv(test)
     rows = rows_train + rows_test
 
-    return rows
+
+    return rows, rows_train, rows_test
 
 '''
 rows: n*m array
@@ -104,11 +104,13 @@ def transform_data(rows):
     return rows
 
 
+
 if __name__ == '__main__':
     train = 'train.csv'
     test = 'test.csv'
 
-    rows = get_all_rows(train, test)
+    # read data
+    rows, rows_train, rows_test = get_all_rows(train, test)
     city_names = scan_city_name(rows)
     city_groups = scan_city_group(rows)
     types = scan_type(rows)
@@ -117,13 +119,28 @@ if __name__ == '__main__':
     print 'city group = %s ' % city_groups
     print 'types = %s ' % types
 
-    th = read_csv_header(train)
-    th = th[1:len(th)]
-    t = transform_data(rows_train)
-    write_csv('train_cleaned.csv', t, th, True)
 
-    th = read_csv_header(test)
-    th = th[1:len(th)]
-    t = transform_data(rows_test)
-    write_csv('test_cleaned.csv', t, th, True)
+    # tranfrom data to numeric types
+    rows_train = transform_data(rows_train)
+    rows_test = transform_data(rows_test)
+
+    rows_train = np.array(rows_train, dtype = float)
+    rows_test = np.array(rows_test, dtype = float)
+
+    X_train = rows_train[:, 0:len(rows_train[0])-1]
+    y_train = rows_train[:, len(rows_train[0])-1]
+    # normalize data
+    X_train = preprocessing.normalize(X_train, norm='l1', axis=0)
+    rows_train = np.c_[X_train, y_train]
+    
+    rows_test = preprocessing.normalize(rows_test, norm='l1', axis=0)
+
+
+    train_header = read_csv_header(train)
+    test_header = read_csv_header(test)
+    train_header = train_header[1:len(train_header)]
+    test_header = test_header[1:len(test_header)]
+
+    write_csv('train_cleaned.csv', rows_train, train_header, True)
+    write_csv('test_cleaned.csv', rows_test, test_header, True)
 

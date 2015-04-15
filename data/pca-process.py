@@ -8,6 +8,7 @@ from sklearn import svm
 import preproccess as process
 from sklearn import decomposition
 
+
 rows_train = []
 rows_test = []
 rows = []
@@ -28,8 +29,8 @@ def pca_transform(train, test, pca_train, pca_test):
 	rows_train = process.read_csv(train)
 	rows_test = process.read_csv(test)
 
-	rows_train = np.array(rows_train)
-	rows_test = np.array(rows_test)	
+	rows_train = np.array(rows_train, dtype = float)
+	rows_test = np.array(rows_test,  dtype = float)	
 
 	# seperate revenue
 	revenue = rows_train[:,len(rows_train[0])-1]
@@ -45,6 +46,8 @@ def pca_transform(train, test, pca_train, pca_test):
 	# combine training and test set
 	rows_all = np.concatenate((rows_train, rows_test), axis=0)
 	print 'rows_all.shape', rows_all.shape
+
+	
 
 	# do pca 
 	pca = decomposition.PCA(n_components=22)	
