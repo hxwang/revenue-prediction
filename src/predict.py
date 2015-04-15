@@ -20,7 +20,9 @@ return: array of models
 def ensemble(X, y):
     models = [
         KNeighborsRegressor(n_neighbors=23, weights='distance'),
-        svm.NuSVR(nu=0.25, C=1.5e7, degree=2, gamma=0.0042)
+        svm.NuSVR(nu=0.25, C=1.5e7, degree=2, gamma=0.0042),
+        GradientBoostingRegressor(n_estimators=100, learning_rate=0.5, max_depth=1, random_state=0, loss='lad'),
+        # svm.SVR(C=1.3, degree=3, gamma=0.05)
     ]
 
     for m in models:
@@ -163,7 +165,7 @@ def predict_test(X_train, y_train, X_test, config):
         y_predict = np.mean(y_predicts, axis=0)        
     else:
         model = fit(X_train, y_train)
-        y_predict = predict(svr, X_test)
+        y_predict = predict(model, X_test)
 
     solution_filename = 'solution.csv'
 
