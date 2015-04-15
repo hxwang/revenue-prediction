@@ -5,6 +5,8 @@ import math
 import numpy as np
 from sklearn import svm
 from sklearn import kernel_ridge
+from sklearn.metrics import mean_squared_error
+
 
 '''
 produce model 
@@ -15,19 +17,18 @@ return: model
 def fit(X, y):
     print 'fitting the model...'
     
-    # 2.56756449604 @ 3:11pm 4/14/2015 by huahua skip_cols = 4, k = 5
-    # model = kernel_ridge.KernelRidge(alpha=4e2, kernel='linear')
+    # 2.62950380006 skip_cols = 4, k = 3
+    # model = kernel_ridge.KernelRidge(alpha=3e2, kernel='linear')
 
-    # 2.29751703569 @ 8:10pm 4/14/2015 by huahua skip_cols = 4, k = 5    
-    # test score: 1791324.54510
-    model = svm.NuSVR(nu=0.45, C=0.89e7, degree=2, gamma=0.0049)
+    # 2.38924373635 k = 3    
+    # model = svm.NuSVR(nu=0.31, C=1.4e7, degree=2, gamma=0.0047)
 
-    # skip_cols = 4, k = 3, score = 2.36530449815
-    # test score: 1811423.64071
-    # model = svm.NuSVR(nu=0.26, C=1.1e7, degree=2, gamma=0.024)
+    # skip_cols = 4, k = 5, score = 2.28961019305
+    # test score = 1796861.52166
+    model = svm.NuSVR(nu=0.22, C=0.91e7, degree=2, gamma=0.023)
 
     # skip_cols = 4, k = 3, score = 2.41825213616
-    #model = svm.SVR(C=7e6, degree=3, gamma=0.17)
+    # model = svm.SVR(C=1.3, degree=3, gamma=0.05)
 
     # 2.3901486131 @ 8:06pm 4/14/2015 by huahua skip_cols = 0, k = 5
     # model = svm.NuSVR(nu=0.5, C=4e6, degree=2, gamma=0.0006)
@@ -52,26 +53,6 @@ def predict(model, X):
     y = model.predict(X).tolist()
 
     return y
-
-'''
-evaluate predicted result
-y_predict: predicted value, n*1 matrix
-y_truth: real value, n*1 matrix
-return: Root Mean Squared Error (RMSE)
-'''
-def evaluate(y_predict, y_truth):
-
-    print 'evaluating...'
-
-    rmse = 0
-    for i in range(len(y_predict)):
-        rmse = rmse + (float(y_predict[i]) - float(y_truth[i]))**2
-
-    rmse = rmse / len(y_predict)
-
-    rmse = math.sqrt(rmse)
-
-    return rmse
 
 '''
 read file, e.g., training file, testing file
@@ -131,7 +112,9 @@ def k_folds(X, y, k = 5, skip_cols=0):
 
         y_predict = predict(svr, X_test)
 
-        score = evaluate(y_predict, y_test)
+        score = math.sqrt(mean_squared_error(y_predict, y_test))
+
+        print 'score =', score / 1e6
 
         total_score += score
 
@@ -139,11 +122,15 @@ def k_folds(X, y, k = 5, skip_cols=0):
 
     return total_score
 
-
-
 def run_test(X_train, y_train, X_test):
     # rebuild the model
     svr = fit(X_train, y_train)
+
+    y_predict = predict(svr, X_train)
+
+    score = math.sqrt(mean_squared_error(y_predict, y_train))
+
+    print 'train score =', score / 1e6    
 
     solution_filename = 'solution.csv'
 
@@ -169,8 +156,8 @@ if __name__ == '__main__':
     X_train = train_data[:, skip_cols:len(train_data[0])-1].tolist()
     y_train = train_data[:, len(train_data[0])-1].tolist()
     
-    # calcualte average Root Mean Squared Error (RMSE)
-    avg_score = k_folds(X_train, y_train, k=3)
+    # calcualte average Root Mean Squared Eror (RMSE)
+    avg_score = k_folds(X_train, y_train, k=5)
 
     print avg_score / 1e6
 
