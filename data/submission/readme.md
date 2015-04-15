@@ -1,7 +1,7 @@
 ## Histogram of submission result
 
-![](1.png)
+![](./figs/1.png)
 
-![](2.png)
+![](./figs/2.png)
 
-![](3.png)
+![](./figs/3.png)
