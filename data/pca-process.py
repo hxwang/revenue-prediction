@@ -22,7 +22,7 @@ def pca_transform(train, test, pca_train, pca_test):
 	global rows_train
 	global rows_test
 
-	skip_cols = 4
+	skip_cols = 0
 
 	# read data
 	rows_train = process.read_csv(train)
@@ -68,6 +68,10 @@ def pca_transform(train, test, pca_train, pca_test):
 	# write data
 	process.write_csv(pca_train, train_reduced.tolist(), header + ['revenue'])
 	process.write_csv(pca_test, test_reduced.tolist(), header)
+
+
+
+
 
 
 if __name__ == "__main__":
