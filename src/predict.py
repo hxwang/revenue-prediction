@@ -150,21 +150,24 @@ def k_folds(X, y, k = 5, skip_cols=0, config={}):
 
     return total_score
 
-def run_test(X_train, y_train, X_test, config):
+def predict_test(X_train, y_train, X_test, config):
+    
     # rebuild the model
-    svr = fit(X_train, y_train)
 
-    y_predict = predict(svr, X_train)
+    X_train = np.array(X_train)
+    y_train = np.array(y_train)
 
-    score = math.sqrt(mean_squared_error(y_predict, y_train))
-
-    print 'train score =', score / 1e6    
+    if 'ensemble' in config:
+        models = ensemble(X_train, y_train)
+        y_predicts = np.array([predict(model, X_test) for model in models])        
+        y_predict = np.mean(y_predicts, axis=0)        
+    else:
+        model = fit(X_train, y_train)
+        y_predict = predict(svr, X_test)
 
     solution_filename = 'solution.csv'
 
-    y_test_predict = predict(svr, X_test)
-
-    write_solution(solution_filename, y_test_predict)
+    write_solution(solution_filename, y_predict)
 
 def parse_arg(argv):
     config = {}
@@ -221,4 +224,4 @@ if __name__ == '__main__':
     if 'test' in config:
         X_test = np.array(read_csv(test_filename), dtype=float)
         X_test = X_test[:, cols]
-        run_test(X_train, y_train, X_test, config)
+        predict_test(X_train, y_train, X_test, config)
