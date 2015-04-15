@@ -22,9 +22,8 @@ def fit(X, y):
 
     # 2.38924373635 k = 3    
     # model = svm.NuSVR(nu=0.31, C=1.4e7, degree=2, gamma=0.0047)
-
     
-    model = svm.NuSVR(nu=0.27, C=2e7, degree=2, gamma=0.023)
+    model = svm.NuSVR(nu=0.44, C=1.2e7, degree=2, gamma=0.022)
 
     # skip_cols = 4, k = 3, score = 2.41825213616
     # model = svm.SVR(C=1.3, degree=3, gamma=0.05)
