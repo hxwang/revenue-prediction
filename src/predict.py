@@ -5,8 +5,10 @@ import math
 import numpy as np
 from sklearn import svm
 from sklearn import kernel_ridge
+from sklearn.linear_model import SGDClassifier
 from sklearn.metrics import mean_squared_error
-
+from sklearn.neighbors import KNeighborsRegressor
+from sklearn.tree import DecisionTreeRegressor
 
 '''
 produce model 
@@ -17,22 +19,27 @@ return: model
 def fit(X, y):
     print 'fitting the model...'
     
-    # 2.62950380006 skip_cols = 4, k = 3
-    # model = kernel_ridge.KernelRidge(alpha=3e2, kernel='linear')
+    # score: 4.975
+    # model = kernel_ridge.KernelRidge(alpha=50, kernel='linear')
 
     # 2.38924373635 k = 3    
     # model = svm.NuSVR(nu=0.31, C=1.4e7, degree=2, gamma=0.0047)
     
+    # score: 2.32569812295
     model = svm.NuSVR(nu=0.44, C=1.2e7, degree=2, gamma=0.022)
 
-    # skip_cols = 4, k = 3, score = 2.41825213616
+    # score: 3.19637548788
+    # model = SGDClassifier(loss="hinge", penalty="l2")
+
+    # score: 2.43654929108 weights = uniform
+    # score: 2.42790401707 weights = distance
+    # model = KNeighborsRegressor(n_neighbors=10, weights='uniform')
+
+    # score: 3.40178270362
+    # model = DecisionTreeRegressor()
+
+    # score: 2.54716252715
     # model = svm.SVR(C=1.3, degree=3, gamma=0.05)
-
-    # 2.3901486131 @ 8:06pm 4/14/2015 by huahua skip_cols = 0, k = 5
-    # model = svm.NuSVR(nu=0.5, C=4e6, degree=2, gamma=0.0006)
-
-    # for pca, skip = 0, k = 5
-    # model = svm.NuSVR(nu=0.32, C=6e6, degree=2, gamma=0.02)
 
     model.fit(X, y)
 
@@ -148,7 +155,7 @@ if __name__ == '__main__':
     train_data = np.array(read_csv(train_filename), dtype=float)
 
     # selected features open date, p1 ~ p37
-    cols = [i for i in range(4, len(train_data[0])-1)]
+    cols = [0] + [i for i in range(4, len(train_data[0])-1)]
     print len(cols)
     
     
