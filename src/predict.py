@@ -23,9 +23,8 @@ def fit(X, y):
     # 2.38924373635 k = 3    
     # model = svm.NuSVR(nu=0.31, C=1.4e7, degree=2, gamma=0.0047)
 
-    # skip_cols = 4, k = 5, score = 2.28961019305
-    # test score = 1796861.52166
-    model = svm.NuSVR(nu=0.22, C=0.91e7, degree=2, gamma=0.023)
+    
+    model = svm.NuSVR(nu=0.27, C=2e7, degree=2, gamma=0.023)
 
     # skip_cols = 4, k = 3, score = 2.41825213616
     # model = svm.SVR(C=1.3, degree=3, gamma=0.05)
@@ -146,14 +145,16 @@ if __name__ == '__main__':
     # train_filename = '../data/train_pca.csv'
     # test_filename = '../data/test_pca.csv'
 
-    # column number to skip
-    skip_cols = 4
-
     # read training data and convert to numpy array
     train_data = np.array(read_csv(train_filename), dtype=float)
+
+    # selected features open date, p1 ~ p37
+    cols = [i for i in range(4, len(train_data[0])-1)]
+    print len(cols)
+    
     
     # split training data to (record) and (predicted value)
-    X_train = train_data[:, skip_cols:len(train_data[0])-1].tolist()
+    X_train = train_data[:, cols].tolist()
     y_train = train_data[:, len(train_data[0])-1].tolist()
     
     # calcualte average Root Mean Squared Eror (RMSE)
@@ -166,5 +167,5 @@ if __name__ == '__main__':
 
     if len(sys.argv) >= 2 and sys.argv[1] == '-t':
         X_test = np.array(read_csv(test_filename), dtype=float)
-        X_test = X_test[:, skip_cols:len(train_data[0])]
+        X_test = X_test[:, cols]
         run_test(X_train, y_train, X_test)

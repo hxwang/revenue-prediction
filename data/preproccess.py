@@ -127,14 +127,19 @@ if __name__ == '__main__':
     rows_train = np.array(rows_train, dtype = float)
     rows_test = np.array(rows_test, dtype = float)
 
+
     X_train = rows_train[:, 0:len(rows_train[0])-1]
     y_train = rows_train[:, len(rows_train[0])-1]
-    # normalize data
-    X_train = preprocessing.normalize(X_train, norm='l1', axis=0)
-    rows_train = np.c_[X_train, y_train]
-    
-    rows_test = preprocessing.normalize(rows_test, norm='l1', axis=0)
+    X_test  = rows_test
 
+    X_all = np.concatenate((X_train, X_test), axis=0)
+
+    X_all = preprocessing.scale(X_all)
+
+    X_train = X_all[0:len(X_train),:]
+    X_test =  X_all[len(X_train):len(X_all), :]
+    
+    rows_train = np.c_[X_train, y_train]
 
     train_header = read_csv_header(train)
     test_header = read_csv_header(test)
@@ -142,5 +147,5 @@ if __name__ == '__main__':
     test_header = test_header[1:len(test_header)]
 
     write_csv('train_cleaned.csv', rows_train, train_header, True)
-    write_csv('test_cleaned.csv', rows_test, test_header, True)
+    write_csv('test_cleaned.csv', X_test, test_header, True)
 
