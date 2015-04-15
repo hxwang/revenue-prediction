@@ -18,11 +18,14 @@ def fit(X, y):
     # 2.56756449604 @ 3:11pm 4/14/2015 by huahua skip_cols = 4, k = 5
     # model = kernel_ridge.KernelRidge(alpha=4e2, kernel='linear')
 
-    # 2.3039010413 @ 2:45pm 4/14/2015 by huahua skip_cols = 4, k = 5
-    #model = svm.NuSVR(nu=0.45, C=8e6, degree=2, gamma=0.006)
+    # 2.29751703569 @ 8:10pm 4/14/2015 by huahua skip_cols = 4, k = 5    
+    model = svm.NuSVR(nu=0.45, C=0.89e7, degree=2, gamma=0.0049)
+
+    # 2.3901486131 @ 8:06pm 4/14/2015 by huahua skip_cols = 0, k = 5
+    # model = svm.NuSVR(nu=0.5, C=4e6, degree=2, gamma=0.0006)
 
     # for pca, skip = 0, k = 5
-    model = svm.NuSVR(nu=0.32, C=6e6, degree=2, gamma=0.02)
+    # model = svm.NuSVR(nu=0.32, C=6e6, degree=2, gamma=0.02)
 
     # ???
     #model = model.SVR(C=4e6, degree=3, gamma=0.0)
@@ -146,14 +149,14 @@ def run_test(X_train, y_train, X_test):
 
 
 if __name__ == '__main__':
-    # train_filename = '../data/train_cleaned.csv'
-    # test_filename = '../data/test_cleaned.csv'
+    train_filename = '../data/train_cleaned.csv'
+    test_filename = '../data/test_cleaned.csv'
 
-    train_filename = '../data/train_pca.csv'
-    test_filename = '../data/test_pca.csv'
+    # train_filename = '../data/train_pca.csv'
+    # test_filename = '../data/test_pca.csv'
 
     # column number to skip
-    skip_cols = 0
+    skip_cols = 4
 
     # read training data and convert to numpy array
     train_data = np.array(read_csv(train_filename))
