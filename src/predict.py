@@ -9,6 +9,7 @@ from sklearn.linear_model import SGDClassifier
 from sklearn.metrics import mean_squared_error
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn.tree import DecisionTreeRegressor
+from sklearn.ensemble import GradientBoostingRegressor
 
 '''
 produce model 
@@ -18,22 +19,22 @@ return: model
 '''
 def fit(X, y):
     print 'fitting the model...'
+
+    # score: 2.44629209987
+    # model = GradientBoostingRegressor(n_estimators=100, learning_rate=0.5, max_depth=1, random_state=0, loss='lad')    
     
     # score: 4.975
     # model = kernel_ridge.KernelRidge(alpha=50, kernel='linear')
 
-    # 2.38924373635 k = 3    
-    # model = svm.NuSVR(nu=0.31, C=1.4e7, degree=2, gamma=0.0047)
-    
-    # score: 2.32569812295
-    model = svm.NuSVR(nu=0.44, C=1.2e7, degree=2, gamma=0.022)
+    # 2.36622251546 k = 5
+    #model = svm.NuSVR(nu=0.25, C=1.5e7, degree=2, gamma=0.0042)
 
     # score: 3.19637548788
     # model = SGDClassifier(loss="hinge", penalty="l2")
 
     # score: 2.43654929108 weights = uniform
     # score: 2.42790401707 weights = distance
-    # model = KNeighborsRegressor(n_neighbors=10, weights='uniform')
+    model = KNeighborsRegressor(n_neighbors=10, weights='distance')
 
     # score: 3.40178270362
     # model = DecisionTreeRegressor()
