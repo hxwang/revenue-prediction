@@ -49,7 +49,7 @@ set(gcf, 'PaperPosition', [0 0 13 7]); %Position plot at left hand corner with w
 set(gcf, 'PaperSize', [13 7]); %Set the paper to have width 5 and height 5.
 %saveas(gcf, 'SolarTrace_High', 'pdf') %Save figure
 saveas(gcf, strcat('.\figs\',filename), 'pdf') %Save figure  
-saveas(gca, strcat('.\figs\',filename, '.eps'),'psc2') %Save figure 
+saveas(gcf, strcat('.\figs\',filename),'png') %Save figure 
 
 
 end
