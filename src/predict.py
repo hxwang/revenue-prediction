@@ -12,6 +12,23 @@ from sklearn.tree import DecisionTreeRegressor
 from sklearn.ensemble import GradientBoostingRegressor
 
 '''
+Fit a bounch of models
+X: record, n*m matrix
+Y: revenue, n*1 matrix
+return: array of models
+'''
+def ensemble(X, y):
+    models = [
+        KNeighborsRegressor(n_neighbors=23, weights='distance'),
+        svm.NuSVR(nu=0.25, C=1.5e7, degree=2, gamma=0.0042)
+    ]
+
+    for m in models:
+        m.fit(X, y)
+
+    return models
+
+'''
 produce model 
 X: record, n*m matrix
 Y: revenue, n*1 matrix
@@ -33,8 +50,8 @@ def fit(X, y):
     # model = SGDClassifier(loss="hinge", penalty="l2")
 
     # score: 2.43654929108 weights = uniform
-    # score: 2.37613424202 weights = distance, test: 1730840.19422
-    model = KNeighborsRegressor(n_neighbors=20, weights='distance')
+    # score: 2.37613424202 n_neighbors=20, weights = distance, test: 1730840.19422
+    model = KNeighborsRegressor(n_neighbors=23, weights='distance')
 
     # score: 3.40178270362
     # model = DecisionTreeRegressor()
@@ -90,7 +107,7 @@ def write_solution(filename, y):
 k fold validation
 return: average Root Mean Squared Eroor (RMSE)
 '''
-def k_folds(X, y, k = 5, skip_cols=0):
+def k_folds(X, y, k = 5, skip_cols=0, config={}):
     size = len(X) / k
     col = len(X[0])
 
@@ -113,10 +130,15 @@ def k_folds(X, y, k = 5, skip_cols=0):
 
         X_test = XX[idx_test_s:idx_test_e, :]
         y_test = yy[idx_test_s:idx_test_e]
-        
-        svr = fit(X_train, y_train)
 
-        y_predict = predict(svr, X_test)
+        if 'ensemble' in config:
+            models = ensemble(X_train, y_train)
+            y_predicts = [predict(model, X_test) for model in models]
+            y_predicts = np.array(y_predicts)            
+            y_predict = np.mean(y_predicts, axis=0)            
+        else:        
+            svr = fit(X_train, y_train)
+            y_predict = predict(svr, X_test)
 
         score = math.sqrt(mean_squared_error(y_predict, y_test))
 
@@ -128,7 +150,7 @@ def k_folds(X, y, k = 5, skip_cols=0):
 
     return total_score
 
-def run_test(X_train, y_train, X_test):
+def run_test(X_train, y_train, X_test, config):
     # rebuild the model
     svr = fit(X_train, y_train)
 
@@ -144,19 +166,43 @@ def run_test(X_train, y_train, X_test):
 
     write_solution(solution_filename, y_test_predict)
 
+def parse_arg(argv):
+    config = {}
+    config['date'] = True
+    for arg in argv:
+        if arg == '-t':
+            config['test'] = True
+        if arg == '-pca':
+            config['pca'] = True
+        if arg == '--no-date':
+            config.pop('date', None)
+        if arg == '-e':
+            config['ensemble'] = True
+    return config
+
 
 if __name__ == '__main__':
+
+    config = parse_arg(sys.argv)
+
     train_filename = '../data/train_cleaned.csv'
     test_filename = '../data/test_cleaned.csv'
 
-    # train_filename = '../data/train_pca.csv'
-    # test_filename = '../data/test_pca.csv'
+    if 'pca' in config:
+        train_filename = '../data/train_pca.csv'
+        test_filename = '../data/test_pca.csv'
 
     # read training data and convert to numpy array
     train_data = np.array(read_csv(train_filename), dtype=float)
 
-    # selected features open date, p1 ~ p37
-    cols = [0] + [i for i in range(4, len(train_data[0])-1)]
+    if 'pca' in config:
+        # if use pca, use all features
+        cols = [i for i in range(0, len(train_data[0])-1)]
+    else:        
+        # selected features open date, p1 ~ p37
+        cols = [0] if 'date' in config else []
+        cols = cols + [i for i in range(4, len(train_data[0])-1)]
+    
     print len(cols)
     
     
@@ -165,14 +211,14 @@ if __name__ == '__main__':
     y_train = train_data[:, len(train_data[0])-1].tolist()
     
     # calcualte average Root Mean Squared Eror (RMSE)
-    avg_score = k_folds(X_train, y_train, k=5)
+    avg_score = k_folds(X_train, y_train, k=5, config=config)
 
     print avg_score / 1e6
 
     ################################################
     # run test
 
-    if len(sys.argv) >= 2 and sys.argv[1] == '-t':
+    if 'test' in config:
         X_test = np.array(read_csv(test_filename), dtype=float)
         X_test = X_test[:, cols]
-        run_test(X_train, y_train, X_test)
+        run_test(X_train, y_train, X_test, config)

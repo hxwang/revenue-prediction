@@ -8,21 +8,10 @@ from sklearn import svm
 import preproccess as process
 from sklearn import decomposition
 
-
-rows_train = []
-rows_test = []
-rows = []
-
-
-
 '''
 pca reduction of the dataset
 '''
 def pca_transform(train, test, pca_train, pca_test):
-	global rows
-	global rows_train
-	global rows_test
-
 	skip_cols = 0
 
 	# read data
@@ -37,20 +26,16 @@ def pca_transform(train, test, pca_train, pca_test):
 	rows_train = rows_train[:, skip_cols:len(rows_train[0])-1]	
 	print 'rows_train.shape', rows_train.shape
 	print 'revenue.shape', revenue.shape
-	# print revenue
-
-	rows_test = np.array(rows_test)	
+	
 	rows_test = rows_test[:, skip_cols:len(rows_test[0])]
 	print 'rows_test.shape', rows_test.shape
 
 	# combine training and test set
 	rows_all = np.concatenate((rows_train, rows_test), axis=0)
-	print 'rows_all.shape', rows_all.shape
-
-	
+	print 'rows_all.shape', rows_all.shape	
 
 	# do pca 
-	pca = decomposition.PCA(n_components=22)	
+	pca = decomposition.PCA(n_components=30)	
 	
 	reduced = pca.fit_transform(rows_all)
 	print 'variance = ', pca.explained_variance_ratio_

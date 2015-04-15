@@ -8,14 +8,6 @@ from sklearn import preprocessing
 import numpy as np
 
 
-city_names = {}
-city_groups = {}
-types = {}
-rows_train = []
-rows_test = []
-rows = []
-
-
 def read_csv_all(filename):
     rows = []
     with open(filename, 'r') as f:
@@ -42,6 +34,7 @@ def read_csv(filename):
     return rows
 
 def write_csv(filename, rows, header=None, removeId=False):
+    print 'writing to %s' % filename
     start_idx = 1 if removeId else 0
     with open(filename, 'w') as f:
         writer = csv.writer(f, delimiter=',')
@@ -88,11 +81,7 @@ def scan_type(rows):
 '''
 transform nominal value to integer value
 '''
-def transform_data(rows):
-
-    global city_names
-    global city_groups
-    global types    
+def transform_data(rows, city_names, city_groups, types):
 
     for row in rows:        
         row[1] = datetime.datetime.strptime(row[1], '%m/%d/%Y').date()
@@ -119,11 +108,11 @@ if __name__ == '__main__':
     print 'city group = %s ' % city_groups
     print 'types = %s ' % types
 
-
     # tranfrom data to numeric types
-    rows_train = transform_data(rows_train)
-    rows_test = transform_data(rows_test)
+    rows_train = transform_data(rows_train, city_names, city_groups, types)
+    rows_test = transform_data(rows_test, city_names, city_groups, types)
 
+    # convert to float type
     rows_train = np.array(rows_train, dtype = float)
     rows_test = np.array(rows_test, dtype = float)
 
@@ -139,6 +128,7 @@ if __name__ == '__main__':
     X_train = X_all[0:len(X_train),:]
     X_test =  X_all[len(X_train):len(X_all), :]
     
+    # put revenue back
     rows_train = np.c_[X_train, y_train]
 
     train_header = read_csv_header(train)
