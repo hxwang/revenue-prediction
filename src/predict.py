@@ -128,7 +128,7 @@ def k_folds(X, y, k = 5, skip_cols=0):
 
     return total_score
 
-def run_test(X_train, y_train, X_test):
+def predict_test(X_train, y_train, X_test):
     # rebuild the model
     svr = fit(X_train, y_train)
 
@@ -175,4 +175,4 @@ if __name__ == '__main__':
     if len(sys.argv) >= 2 and sys.argv[1] == '-t':
         X_test = np.array(read_csv(test_filename), dtype=float)
         X_test = X_test[:, cols]
-        run_test(X_train, y_train, X_test)
+        predict_test(X_train, y_train, X_test)
