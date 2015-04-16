@@ -3,6 +3,7 @@ import csv
 import sys
 import math
 import numpy as np
+import smote
 from sklearn import svm
 from sklearn import cross_validation
 from sklearn import kernel_ridge
@@ -52,11 +53,12 @@ def fit(X, y, config = {}):
         models = [
             #KNeighborsRegressor(n_neighbors=23, weights='distance'),
             # KNeighborsRegressor(n_neighbors=22, weights='distance'),
-            KNeighborsRegressor(n_neighbors=23, weights='distance'),
             #KNeighborsRegressor(n_neighbors=20, weights = 'distance'),
-            #KNeighborsRegressor(n_neighbors=15, weights = 'distance'),
+            #KNeighborsRegressor(n_neighbors=15, weights = 'distance'),            
+            KNeighborsRegressor(n_neighbors=23, weights='distance'),
             svm.NuSVR(nu=0.25, C=1.5e7, degree=2, gamma=0.0042),
             GradientBoostingRegressor(n_estimators=100, learning_rate=0.5, max_depth=1, random_state=0, loss='lad'),
+            # RandomForestRegressor(n_estimators=100, n_jobs=-1)
             #AdaBoostRegressor(n_estimators=100,  learning_rate = 0.3, loss='exponential')
             #GradientBoostingRegressor(n_estimators=100, learning_rate=0.5, max_depth=3, random_state=1, loss='lad'),
             #GradientBoostingRegressor(n_estimators=150, learning_rate=0.2, max_depth=3, random_state=1, loss='lad')
@@ -66,7 +68,14 @@ def fit(X, y, config = {}):
         # score: 2.44629209987
         # model = GradientBoostingRegressor(n_estimators=100, learning_rate=0.5, max_depth=1, random_state=0, loss='lad')    
         
-        model = GradientBoostingRegressor(n_estimators=150, learning_rate=0.5, max_depth=1, random_state=1, loss='lad')
+        #model = GradientBoostingRegressor(n_estimators=150, learning_rate=0.5, max_depth=1, random_state=1, loss='lad')
+
+        # model =  RandomForestRegressor(n_estimators=200, n_jobs=-1)
+
+        # model = BaggingRegressor(n_estimators=50, n_jobs=-1)
+
+        # model = RandomForestRegressor(n_estimators=10, n_jobs=-1)
+        model = svm.NuSVR(nu=0.34, C=1.5e7, degree=2, gamma=0.008)
 
         # model = AdaBoostRegressor(n_estimators=500,  learning_rate = 0.3, loss='exponential')
 
@@ -92,6 +101,10 @@ def fit(X, y, config = {}):
         # model = svm.SVR(C=1.3, degree=3, gamma=0.05)
 
         models = [ model ]
+
+    # oversampling the training set
+    if 'oversampling' in config:
+        X, y = smote.SMOTE(X, y, 200, 20)
 
     for model in models:
         print 'fitting model...'
@@ -162,13 +175,19 @@ def predict_test(X_train, y_train, X_test, config):
 def parse_arg(argv):
     config = {}
     config['date'] = True
+    config['city_group'] = True
+
     for arg in argv:
         if arg == '-t':
             config['test'] = True
         if arg == '-pca':
             config['pca'] = True
+        if arg == '-os':
+            config['oversampling'] = True
         if arg == '--no-date':
             config.pop('date', None)
+        if arg == '--no-city-group':
+            config.pop('city_group', None)
         if arg == '-e':
             config['ensemble'] = True
         if arg == '-s':
@@ -196,8 +215,9 @@ if __name__ == '__main__':
         # if use pca, use all features
         cols = [i for i in range(0, len(train_data[0])-1)]
     else:        
-        # selected features open date, p1 ~ p37
+        # selected features open date, city-gropu, p1 ~ p37
         cols = [0] if 'date' in config else []
+        if 'city_group' in config: cols = cols + [2]
         cols = cols + [i for i in range(4, len(train_data[0])-1)]
     
     print len(cols)
