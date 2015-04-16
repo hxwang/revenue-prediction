@@ -11,6 +11,7 @@ from sklearn.neighbors import KNeighborsRegressor
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.ensemble import GradientBoostingRegressor
 
+
 '''
 Fit a bounch of models
 X: record, n*m matrix
@@ -20,8 +21,12 @@ return: array of models
 def ensemble(X, y):
     models = [
         KNeighborsRegressor(n_neighbors=23, weights='distance'),
+        #KNeighborsRegressor(n_neighbors=20, weights = 'distance'),
+        #KNeighborsRegressor(n_neighbors=15, weights = 'distance'),
         svm.NuSVR(nu=0.25, C=1.5e7, degree=2, gamma=0.0042),
         GradientBoostingRegressor(n_estimators=100, learning_rate=0.5, max_depth=1, random_state=0, loss='lad'),
+        #GradientBoostingRegressor(n_estimators=100, learning_rate=0.5, max_depth=3, random_state=1, loss='lad'),
+        #GradientBoostingRegressor(n_estimators=150, learning_rate=0.2, max_depth=3, random_state=1, loss='lad')
         # svm.SVR(C=1.3, degree=3, gamma=0.05)
     ]
 
@@ -42,6 +47,9 @@ def fit(X, y):
     # score: 2.44629209987
     # model = GradientBoostingRegressor(n_estimators=100, learning_rate=0.5, max_depth=1, random_state=0, loss='lad')    
     
+    model = GradientBoostingRegressor(n_estimators=150, learning_rate=0.2, max_depth=3, random_state=1, loss='lad')
+    # model = ensemble.GradientBoostingRegressor(n_estimators=100, learning_rate=0.5, max_depth=1, random_state=0, loss='lad') 
+
     # score: 4.975
     # model = kernel_ridge.KernelRidge(alpha=50, kernel='linear')
 
@@ -53,7 +61,7 @@ def fit(X, y):
 
     # score: 2.43654929108 weights = uniform
     # score: 2.37613424202 n_neighbors=20, weights = distance, test: 1730840.19422
-    model = KNeighborsRegressor(n_neighbors=23, weights='distance')
+    # model = KNeighborsRegressor(n_neighbors=15, weights = 'distance')
 
     # score: 3.40178270362
     # model = DecisionTreeRegressor()
