@@ -121,17 +121,13 @@ if __name__ == '__main__':
     y_train = rows_train[:, len(rows_train[0])-1]
     X_test  = rows_test
 
-    X_all = np.concatenate((X_train, X_test), axis=0)
-
     # standization, mean = 0, variance = 1
     # X_all = preprocessing.scale(X_all)
 
-    mms = MinMaxScaler()
+    ss = StandardScaler()
 
-    X_all = mms.fit_transform(X_all)
-
-    X_train = X_all[0:len(X_train),:]
-    X_test =  X_all[len(X_train):len(X_all), :]
+    X_train = ss.fit_transform(X_train)
+    X_test  = ss.transform(X_test)
     
     # put revenue back
     rows_train = np.c_[X_train, y_train]
