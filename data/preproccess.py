@@ -123,6 +123,7 @@ if __name__ == '__main__':
 
     X_all = np.concatenate((X_train, X_test), axis=0)
 
+    # standization, mean = 0, variance = 1
     X_all = preprocessing.scale(X_all)
 
     X_train = X_all[0:len(X_train),:]
