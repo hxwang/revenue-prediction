@@ -4,88 +4,14 @@ import sys
 import math
 import numpy as np
 from sklearn import svm
+from sklearn import cross_validation
 from sklearn import kernel_ridge
 from sklearn.linear_model import SGDClassifier
 from sklearn.metrics import mean_squared_error
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn.tree import DecisionTreeRegressor
-from sklearn.ensemble import GradientBoostingRegressor
+from sklearn.ensemble import *
 
-
-'''
-Fit a bounch of models
-X: record, n*m matrix
-Y: revenue, n*1 matrix
-return: array of models
-'''
-def ensemble(X, y):
-    models = [
-        KNeighborsRegressor(n_neighbors=23, weights='distance'),
-        #KNeighborsRegressor(n_neighbors=20, weights = 'distance'),
-        #KNeighborsRegressor(n_neighbors=15, weights = 'distance'),
-        svm.NuSVR(nu=0.25, C=1.5e7, degree=2, gamma=0.0042),
-        GradientBoostingRegressor(n_estimators=100, learning_rate=0.5, max_depth=1, random_state=0, loss='lad'),
-        #GradientBoostingRegressor(n_estimators=100, learning_rate=0.5, max_depth=3, random_state=1, loss='lad'),
-        #GradientBoostingRegressor(n_estimators=150, learning_rate=0.2, max_depth=3, random_state=1, loss='lad')
-        # svm.SVR(C=1.3, degree=3, gamma=0.05)
-    ]
-
-    for m in models:
-        m.fit(X, y)
-
-    return models
-
-'''
-produce model 
-X: record, n*m matrix
-Y: revenue, n*1 matrix
-return: model
-'''
-def fit(X, y):
-    print 'fitting the model...'
-
-    # score: 2.44629209987
-    # model = GradientBoostingRegressor(n_estimators=100, learning_rate=0.5, max_depth=1, random_state=0, loss='lad')    
-    
-    model = GradientBoostingRegressor(n_estimators=150, learning_rate=0.2, max_depth=3, random_state=1, loss='lad')
-    # model = ensemble.GradientBoostingRegressor(n_estimators=100, learning_rate=0.5, max_depth=1, random_state=0, loss='lad') 
-
-    # score: 4.975
-    # model = kernel_ridge.KernelRidge(alpha=50, kernel='linear')
-
-    # 2.36622251546 k = 5
-    #model = svm.NuSVR(nu=0.25, C=1.5e7, degree=2, gamma=0.0042)
-
-    # score: 3.19637548788
-    # model = SGDClassifier(loss="hinge", penalty="l2")
-
-    # score: 2.43654929108 weights = uniform
-    # score: 2.37613424202 n_neighbors=20, weights = distance, test: 1730840.19422
-    # model = KNeighborsRegressor(n_neighbors=15, weights = 'distance')
-
-    # score: 3.40178270362
-    # model = DecisionTreeRegressor()
-
-    # score: 2.54716252715
-    # model = svm.SVR(C=1.3, degree=3, gamma=0.05)
-
-    model.fit(X, y)
-
-    return model
-
-
-'''
-predict using a given model
-model: given model
-X: record to predict, n*m matrix
-return: predicted revenue, n*1 matrix
-'''
-def predict(model, X):
-    print 'predicting...'
-    
-    y = model.predict(X).tolist()
-
-    return y
 
 '''
 read file, e.g., training file, testing file
@@ -112,51 +38,113 @@ def write_solution(filename, y):
             f.write(str(i)+','+str(y[i])+'\n')
     print 'done'
 
+'''
+produce model 
+X: record, n*m matrix
+Y: revenue, n*1 matrix
+return: models
+'''
+def fit(X, y, config = {}):
+
+    models = []
+
+    if 'ensemble' in config:
+        models = [
+            #KNeighborsRegressor(n_neighbors=23, weights='distance'),
+            # KNeighborsRegressor(n_neighbors=22, weights='distance'),
+            KNeighborsRegressor(n_neighbors=23, weights='distance'),
+            #KNeighborsRegressor(n_neighbors=20, weights = 'distance'),
+            #KNeighborsRegressor(n_neighbors=15, weights = 'distance'),
+            svm.NuSVR(nu=0.25, C=1.5e7, degree=2, gamma=0.0042),
+            GradientBoostingRegressor(n_estimators=100, learning_rate=0.5, max_depth=1, random_state=0, loss='lad'),
+            #AdaBoostRegressor(n_estimators=100,  learning_rate = 0.3, loss='exponential')
+            #GradientBoostingRegressor(n_estimators=100, learning_rate=0.5, max_depth=3, random_state=1, loss='lad'),
+            #GradientBoostingRegressor(n_estimators=150, learning_rate=0.2, max_depth=3, random_state=1, loss='lad')
+            #svm.SVR(C=1.3, degree=3, gamma=0.05)
+        ]
+    else:
+        # score: 2.44629209987
+        # model = GradientBoostingRegressor(n_estimators=100, learning_rate=0.5, max_depth=1, random_state=0, loss='lad')    
+        
+        model = GradientBoostingRegressor(n_estimators=150, learning_rate=0.5, max_depth=1, random_state=1, loss='lad')
+
+        # model = AdaBoostRegressor(n_estimators=500,  learning_rate = 0.3, loss='exponential')
+
+        # model = ensemble.GradientBoostingRegressor(n_estimators=100, learning_rate=0.5, max_depth=1, random_state=0, loss='lad') 
+
+        # score: 4.975
+        # model = kernel_ridge.KernelRidge(alpha=50, kernel='linear')
+
+        # 2.36622251546 k = 5
+        #model = svm.NuSVR(nu=0.25, C=1.5e7, degree=2, gamma=0.0042)
+
+        # score: 3.19637548788
+        # model = SGDClassifier(loss="hinge", penalty="l2")
+
+        # score: 2.43654929108 weights = uniform
+        # score: 2.37613424202 n_neighbors=20, weights = distance, test: 1730840.19422
+        # model = KNeighborsRegressor(n_neighbors=15, weights = 'distance')
+
+        # score: 3.40178270362
+        # model = DecisionTreeRegressor()
+
+        # score: 2.54716252715
+        # model = svm.SVR(C=1.3, degree=3, gamma=0.05)
+
+        models = [ model ]
+
+    for model in models:
+        print 'fitting model...'
+        model.fit(X, y)
+
+    return models
+
+'''
+predict by given models
+models: given models
+X: record to predict, n*m matrix
+return: predicted (mean) revenue, n*1 matrix
+'''
+def predict(models, X):
+
+    ys = []
+
+    for model in models:
+        print 'predicting...'    
+        ys.append(model.predict(X))
+
+    # return mean prediction
+    y = np.mean(np.array(ys), axis=0)
+
+    return y
+
 
 '''
 k fold validation
 return: average Root Mean Squared Eroor (RMSE)
 '''
-def k_folds(X, y, k = 5, skip_cols=0, config={}):
-    size = len(X) / k
-    col = len(X[0])
+def k_folds(X, y, k = 5, config={}):
+    n = len(X)
 
-    # contact it self  
-    X = X + X
-    y = y + y
+    shuffle = True if 'shuffle' in config else False
+
+    kf = cross_validation.KFold(n=n, n_folds=k, shuffle=shuffle)
 
     total_score = 0.0
-    XX = np.array(X, dtype=float)
-    yy = np.array(y, dtype=float)
 
-    for i in range(k):
-        idx_train_s = i*size
-        idx_train_e = (i+k-1)*size
-        idx_test_s  = (i+k-1)*size
-        idx_test_e  = (i+k)*size
-
-        X_train = XX[idx_train_s:idx_train_e, :]
-        y_train = yy[idx_train_s:idx_train_e]
-
-        X_test = XX[idx_test_s:idx_test_e, :]
-        y_test = yy[idx_test_s:idx_test_e]
-
-        if 'ensemble' in config:
-            models = ensemble(X_train, y_train)
-            y_predicts = [predict(model, X_test) for model in models]
-            y_predicts = np.array(y_predicts)            
-            y_predict = np.mean(y_predicts, axis=0)            
-        else:        
-            svr = fit(X_train, y_train)
-            y_predict = predict(svr, X_test)
+    for train_index, test_index in kf:
+        X_train, X_test = X[train_index], X[test_index]
+        y_train, y_test = y[train_index], y[test_index]
+        models = fit(X_train, y_train, config)
+        y_predict = predict(models, X_test)
 
         score = math.sqrt(mean_squared_error(y_predict, y_test))
 
-        print 'score =', score / 1e6
-
         total_score += score
 
-    total_score = total_score / k
+        print 'score =', score / 1e6        
+
+    total_score /= k
 
     return total_score
 
@@ -164,16 +152,8 @@ def predict_test(X_train, y_train, X_test, config):
     
     # rebuild the model
 
-    X_train = np.array(X_train)
-    y_train = np.array(y_train)
-
-    if 'ensemble' in config:
-        models = ensemble(X_train, y_train)
-        y_predicts = np.array([predict(model, X_test) for model in models])        
-        y_predict = np.mean(y_predicts, axis=0)        
-    else:
-        model = fit(X_train, y_train)
-        y_predict = predict(model, X_test)
+    models = fit(X_train, y_train, config)
+    y_predict = predict(models, X_test)
 
     solution_filename = 'solution.csv'
 
@@ -191,8 +171,12 @@ def parse_arg(argv):
             config.pop('date', None)
         if arg == '-e':
             config['ensemble'] = True
+        if arg == '-s':
+            config['shuffle'] = True
+        if arg == '-r':
+            config['repeat'] = True
+            config['shuffle'] = True
     return config
-
 
 if __name__ == '__main__':
 
@@ -220,13 +204,22 @@ if __name__ == '__main__':
     
     
     # split training data to (record) and (predicted value)
-    X_train = train_data[:, cols].tolist()
-    y_train = train_data[:, len(train_data[0])-1].tolist()
+    X_train = train_data[:, cols]
+    y_train = train_data[:, len(train_data[0])-1]
     
     # calcualte average Root Mean Squared Eror (RMSE)
-    avg_score = k_folds(X_train, y_train, k=5, config=config)
+    total_avg = 0.0
 
-    print avg_score / 1e6
+    repeat = 10 if 'repeat' in config else 1
+
+    for i in range(repeat):
+        print '----- repeat %s ----' % i
+        avg_score = k_folds(X_train, y_train, k=5, config=config)
+        total_avg += avg_score
+
+    total_avg /= repeat
+
+    print total_avg / 1e6
 
     ################################################
     # run test
