@@ -9,7 +9,7 @@ from sklearn import cross_validation
 from sklearn import kernel_ridge
 from sklearn.linear_model import SGDClassifier
 from sklearn.metrics import mean_squared_error
-from sklearn.neighbors import KNeighborsRegressor
+from sklearn.neighbors import *
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.ensemble import *
 
@@ -75,7 +75,9 @@ def fit(X, y, config = {}):
         # model = BaggingRegressor(n_estimators=50, n_jobs=-1)
 
         # model = RandomForestRegressor(n_estimators=10, n_jobs=-1)
-        model = svm.NuSVR(nu=0.34, C=1.5e7, degree=2, gamma=0.008)
+        #model = svm.NuSVR(nu=0.34, C=1.5e7, degree=2, gamma=0.008)
+
+        model = RadiusNeighborsRegressor(radius=15, weights='distance')
 
         # model = AdaBoostRegressor(n_estimators=500,  learning_rate = 0.3, loss='exponential')
 
