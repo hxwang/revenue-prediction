@@ -4,7 +4,7 @@ import csv
 import sys
 import time
 import datetime
-from sklearn import preprocessing
+from sklearn.preprocessing import *
 import numpy as np
 
 
@@ -124,7 +124,11 @@ if __name__ == '__main__':
     X_all = np.concatenate((X_train, X_test), axis=0)
 
     # standization, mean = 0, variance = 1
-    X_all = preprocessing.scale(X_all)
+    # X_all = preprocessing.scale(X_all)
+
+    mms = MinMaxScaler()
+
+    X_all = mms.fit_transform(X_all)
 
     X_train = X_all[0:len(X_train),:]
     X_test =  X_all[len(X_train):len(X_all), :]

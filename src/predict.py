@@ -54,10 +54,22 @@ def fit(X, y, config = {}):
             #KNeighborsRegressor(n_neighbors=23, weights='distance'),
             # KNeighborsRegressor(n_neighbors=22, weights='distance'),
             #KNeighborsRegressor(n_neighbors=20, weights = 'distance'),
-            #KNeighborsRegressor(n_neighbors=15, weights = 'distance'),            
-            KNeighborsRegressor(n_neighbors=23, weights='distance'),
-            svm.NuSVR(nu=0.25, C=1.5e7, degree=2, gamma=0.0042),
-            GradientBoostingRegressor(n_estimators=100, learning_rate=0.5, max_depth=1, random_state=0, loss='lad'),
+            #KNeighborsRegressor(n_neighbors=15, weights = 'distance'),   
+            
+            ########################################################################## 
+            # for standardized data
+            # KNeighborsRegressor(n_neighbors=23, weights='distance'),
+            # svm.NuSVR(nu=0.25, C=1.5e7, degree=2, gamma=0.0042),
+            # GradientBoostingRegressor(n_estimators=100, learning_rate=0.5, max_depth=1, random_state=0, loss='lad'),
+            ###########################################################################
+
+            ########################################################################## 
+            # for normalized data
+            KNeighborsRegressor(n_neighbors=21, weights = 'distance'),
+            svm.NuSVR(nu=0.35, C=5e7, degree=2, gamma=0.008),
+            GradientBoostingRegressor(n_estimators=150, learning_rate=0.8, max_depth=1, random_state=1, loss='lad')
+            ###########################################################################
+
             # RandomForestRegressor(n_estimators=100, n_jobs=-1)
             #AdaBoostRegressor(n_estimators=100,  learning_rate = 0.3, loss='exponential')
             #GradientBoostingRegressor(n_estimators=100, learning_rate=0.5, max_depth=3, random_state=1, loss='lad'),
@@ -68,16 +80,16 @@ def fit(X, y, config = {}):
         # score: 2.44629209987
         # model = GradientBoostingRegressor(n_estimators=100, learning_rate=0.5, max_depth=1, random_state=0, loss='lad')    
         
-        #model = GradientBoostingRegressor(n_estimators=150, learning_rate=0.5, max_depth=1, random_state=1, loss='lad')
+        # model = GradientBoostingRegressor(n_estimators=150, learning_rate=0.8, max_depth=1, random_state=1, loss='lad')
 
         # model =  RandomForestRegressor(n_estimators=200, n_jobs=-1)
 
         # model = BaggingRegressor(n_estimators=50, n_jobs=-1)
 
         # model = RandomForestRegressor(n_estimators=10, n_jobs=-1)
-        #model = svm.NuSVR(nu=0.34, C=1.5e7, degree=2, gamma=0.008)
+        # model = svm.NuSVR(nu=0.35, C=5e7, degree=2, gamma=0.008)
 
-        model = RadiusNeighborsRegressor(radius=15, weights='distance')
+        #model = RadiusNeighborsRegressor(radius=15, weights='distance')
 
         # model = AdaBoostRegressor(n_estimators=500,  learning_rate = 0.3, loss='exponential')
 
@@ -94,7 +106,7 @@ def fit(X, y, config = {}):
 
         # score: 2.43654929108 weights = uniform
         # score: 2.37613424202 n_neighbors=20, weights = distance, test: 1730840.19422
-        # model = KNeighborsRegressor(n_neighbors=15, weights = 'distance')
+        # model = KNeighborsRegressor(n_neighbors=21, weights = 'distance')
 
         # score: 3.40178270362
         # model = DecisionTreeRegressor()
