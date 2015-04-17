@@ -55,17 +55,39 @@ def get_all_rows(train, test):
 '''
 rows: n*m array
 columnId: int
-return: dictionary
+return: use mean revenue to represent the numeric value
 E.g.,
 {'a', 'b', 'c', 'a', 'b', 'd'} => {'a':0, 'b':1, 'c':2, 'd':3}
 '''
-def make_dict(rows, columnId):
+def make_dict(rows, columnId, revenueId=42):
     d = {}
+    count = {}
+    # scan each data
     for row in rows:
         k = row[columnId]
-        if k in d: continue
-        d[k] = len(d)
+        # if k in d: continue
 
+        if k not in d: 
+            d[k] = 0
+            count[k] = 0
+
+        if len(row) > revenueId:
+            d[k] = d[k] + float(row[revenueId])
+            count[k] = count[k] + 1
+
+
+    # calculate mean_revenue and assign to each numeric value
+    revenue_mean = sum(d.values())/sum(count.values())
+
+    print 'revenue_mean = %s d.values = %s count = %s' % (revenue_mean, sum(d.values()), sum(count.values()))
+
+    for k in d:
+        if d[k] == 0:
+            d[k] = revenue_mean
+        else:
+            d[k] = d[k]/count[k]
+
+    print d
     return d
 
 def scan_city_name(rows):
