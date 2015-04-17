@@ -13,7 +13,7 @@ pca reduction of the dataset
 '''
 def pca_transform(train, test, pca_train, pca_test):
 
-	n_components = 15
+	n_components = 10
 
 	skip_cols = 0
 

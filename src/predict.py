@@ -58,10 +58,18 @@ def fit(X, y, config = {}):
             
             ########################################################################## 
             # for standardized data
-            KNeighborsRegressor(n_neighbors=21, weights = 'distance'),
+            KNeighborsRegressor(n_neighbors=22, weights = 'distance'),
             # svm.NuSVR(nu=0.27, C=2.3e7, degree=2, gamma=0.0047),
             svm.NuSVR(nu=0.33, C=9e6, degree=2, gamma=0.0092),
-            GradientBoostingRegressor(n_estimators=200, learning_rate=0.62, max_depth=1, random_state=1, loss='lad')
+            GradientBoostingRegressor(n_estimators=100, learning_rate=0.1, max_depth=1, random_state=1, loss='lad')
+            ###########################################################################
+
+
+            ########################################################################## 
+            # for standardized pcaed data
+            # KNeighborsRegressor(n_neighbors=22, weights = 'distance'),
+            # svm.NuSVR(nu=0.27, C=2.3e7, degree=2, gamma=0.0047),
+            # GradientBoostingRegressor(n_estimators=100, learning_rate=0.1, max_depth=1, random_state=1, loss='lad')
             ###########################################################################
 
             ########################################################################## 
@@ -79,14 +87,14 @@ def fit(X, y, config = {}):
         ]
     else:
 
-        # model = GradientBoostingRegressor(n_estimators=200, learning_rate=0.62, max_depth=1, random_state=1, loss='lad')
+        # model = GradientBoostingRegressor(n_estimators=100, learning_rate=0.1, max_depth=1, random_state=1, loss='lad')
 
         # model =  RandomForestRegressor(n_estimators=200, n_jobs=-1)
 
         # model = BaggingRegressor(n_estimators=50, n_jobs=-1)
 
         # model = RandomForestRegressor(n_estimators=10, n_jobs=-1)
-        model = svm.NuSVR(nu=0.33, C=9e6, degree=2, gamma=0.0092)
+        # model = svm.NuSVR(nu=0.27, C=1.6e7, degree=2, gamma=0.0076)
         # model = svm.NuSVR(nu=0.27, C=2.3e7, degree=2, gamma=0.0047)
 
         #model = RadiusNeighborsRegressor(radius=15, weights='distance')
@@ -106,7 +114,7 @@ def fit(X, y, config = {}):
 
         # score: 2.43654929108 weights = uniform
         # score: 2.37613424202 n_neighbors=20, weights = distance, test: 1730840.19422
-        # model = KNeighborsRegressor(n_neighbors=21, weights = 'distance')
+        model = KNeighborsRegressor(n_neighbors=28, weights = 'distance')
 
         # score: 3.40178270362
         # model = DecisionTreeRegressor()
@@ -215,6 +223,10 @@ def parse_arg(argv):
             config.pop('city_name', None)
         if arg == '--no-type':
             config.pop('type', None)
+        if arg == '--no-city-info':
+            config.pop('type', None)
+            config.pop('city_name', None)
+            config.pop('city_group', None)
     return config
 
 if __name__ == '__main__':

@@ -90,14 +90,32 @@ def make_dict(rows, columnId, revenueId=42):
     print d
     return d
 
+'''
+rows: n*m array
+columnId: int
+return: use mean revenue to represent the numeric value
+E.g.,
+{'a', 'b', 'c', 'a', 'b', 'd'} => {'a':0, 'b':1, 'c':2, 'd':3}
+'''
+def make_ids(rows, columnId):
+    d = {}
+    
+    # scan each data
+    for row in rows:
+        k = row[columnId]        
+        if k not in d:
+            d[k] = len(d)
+            
+    return d
+
 def scan_city_name(rows):
-    return make_dict(rows, 2)
+    return make_ids(rows, 2)
 
 def scan_city_group(rows):
-    return make_dict(rows, 3)
+    return make_ids(rows, 3)
 
 def scan_type(rows):
-    return make_dict(rows, 4)
+    return make_ids(rows, 4)
 
 
 '''
@@ -126,7 +144,7 @@ if __name__ == '__main__':
     city_groups = scan_city_group(rows)
     types = scan_type(rows)
 
-    print 'total citys = %s ' % len(city_names)    
+    print 'citys = %s ' % city_names
     print 'city group = %s ' % city_groups
     print 'types = %s ' % types
 
