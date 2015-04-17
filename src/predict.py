@@ -211,9 +211,9 @@ def parse_arg(argv):
         if arg == '-r':
             config['repeat'] = True
             config['shuffle'] = True
-        if arg == '-nocityname':
-            config.pop('cityname', None)
-        if arg == '-notype':
+        if arg == '--no-city-name':
+            config.pop('city_name', None)
+        if arg == '--no-type':
             config.pop('type', None)
     return config
 
@@ -235,9 +235,15 @@ if __name__ == '__main__':
         # if use pca, use all features
         cols = [i for i in range(0, len(train_data[0])-1)]
     else:        
-        # selected features open date, city-gropu, p1 ~ p37
-        cols = [0] if 'date' in config else []
+
+        # selected features
+        cols = [] 
+        
+        if 'date' in config: cols = cols + [0]
+        if 'city_name' in config: cols = cols + [1]
         if 'city_group' in config: cols = cols + [2]
+        if 'type' in config: cols = cols + [3]
+
         cols = cols + [i for i in range(4, len(train_data[0])-1)]
     
     print len(cols)
