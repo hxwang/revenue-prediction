@@ -12,6 +12,9 @@ from sklearn import decomposition
 pca reduction of the dataset
 '''
 def pca_transform(train, test, pca_train, pca_test):
+
+	n_components = 15
+
 	skip_cols = 0
 
 	# read data
@@ -30,37 +33,26 @@ def pca_transform(train, test, pca_train, pca_test):
 	rows_test = rows_test[:, skip_cols:len(rows_test[0])]
 	print 'rows_test.shape', rows_test.shape
 
-	# combine training and test set
-	rows_all = np.concatenate((rows_train, rows_test), axis=0)
-	print 'rows_all.shape', rows_all.shape	
-
 	# do pca 
-	pca = decomposition.PCA(n_components=30)	
+	pca = decomposition.PCA(n_components=n_components)	
 	
-	reduced = pca.fit_transform(rows_all)
+	train_reduced = pca.fit_transform(rows_train)
 	print 'variance = ', pca.explained_variance_ratio_
 	print 'total variance = ', np.sum(pca.explained_variance_ratio_)
-
-	train_reduced = reduced[0:len(rows_train), :]
 
 	# put revenue back
 	train_reduced = np.c_[train_reduced, revenue]
 	print 'train_reduced.shape', train_reduced.shape
 
-	test_reduced = reduced[len(rows_train):len(reduced), :]
+	test_reduced = pca.transform(rows_test)
 	print 'test_reduced.shape', test_reduced.shape
 
 	# create csv header
-	header = ['attr' + str(i) for i in range(len(reduced[0]))]
+	header = ['attr' + str(i) for i in range(n_components)]
 
 	# write data
 	process.write_csv(pca_train, train_reduced.tolist(), header + ['revenue'])
 	process.write_csv(pca_test, test_reduced.tolist(), header)
-
-
-
-
-
 
 if __name__ == "__main__":
 	train = 'train_cleaned.csv'
