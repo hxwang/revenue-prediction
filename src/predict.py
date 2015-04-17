@@ -61,7 +61,8 @@ def fit(X, y, config = {}):
             KNeighborsRegressor(n_neighbors=21, weights = 'distance'),
             # svm.NuSVR(nu=0.27, C=2.3e7, degree=2, gamma=0.0047),
             svm.NuSVR(nu=0.33, C=9e6, degree=2, gamma=0.0092),
-            GradientBoostingRegressor(n_estimators=200, learning_rate=0.62, max_depth=1, random_state=1, loss='lad')
+            GradientBoostingRegressor(n_estimators=200, learning_rate=0.62, max_depth=1, random_state=1, loss='lad'),
+            RandomForestRegressor(n_estimators=70, n_jobs=-1)
             ###########################################################################
 
             ########################################################################## 
@@ -81,7 +82,7 @@ def fit(X, y, config = {}):
 
         # model = GradientBoostingRegressor(n_estimators=200, learning_rate=0.62, max_depth=1, random_state=1, loss='lad')
 
-        model =  RandomForestRegressor(n_estimators=200, n_jobs=-1)
+        # model =  RandomForestRegressor(n_estimators=70, n_jobs=-1)
 
         # model = BaggingRegressor(n_estimators=50, n_jobs=-1)
 
