@@ -190,6 +190,8 @@ def parse_arg(argv):
     config = {}
     config['date'] = True
     config['city_group'] = True
+    config['city_name'] = True
+    config['type'] = True
 
     for arg in argv:
         if arg == '-t':
@@ -209,6 +211,10 @@ def parse_arg(argv):
         if arg == '-r':
             config['repeat'] = True
             config['shuffle'] = True
+        if arg == '-nocityname':
+            config.pop('cityname', None)
+        if arg == '-notype':
+            config.pop('type', None)
     return config
 
 if __name__ == '__main__':
