@@ -50,6 +50,7 @@ def fit(X, y, config = {}):
     models = []
 
     if 'ensemble' in config:
+        
         models = [
             #KNeighborsRegressor(n_neighbors=23, weights='distance'),
             # KNeighborsRegressor(n_neighbors=22, weights='distance'),
@@ -59,8 +60,8 @@ def fit(X, y, config = {}):
             ########################################################################## 
             # for standardized data
             KNeighborsRegressor(n_neighbors=22, weights = 'distance'),
-            # svm.NuSVR(nu=0.27, C=2.3e7, degree=2, gamma=0.0047),
-            svm.NuSVR(nu=0.33, C=9e6, degree=2, gamma=0.0092),
+            svm.NuSVR(nu=0.27, C=2.3e7, degree=2, gamma=0.0047),
+            #svm.NuSVR(nu=0.33, C=9e6, degree=2, gamma=0.0092),
             GradientBoostingRegressor(n_estimators=100, learning_rate=0.1, max_depth=1, random_state=1, loss='lad')
             ###########################################################################
 
@@ -87,6 +88,13 @@ def fit(X, y, config = {}):
             #GradientBoostingRegressor(n_estimators=150, learning_rate=0.2, max_depth=3, random_state=1, loss='lad')
             #svm.SVR(C=1.3, degree=3, gamma=0.05)
         ]
+
+        if 'huahua' in config:
+            models = [
+                KNeighborsRegressor(n_neighbors=23, weights='distance'),                
+                svm.NuSVR(nu=0.25, C=1.5e7, degree=2, gamma=0.0042),
+                GradientBoostingRegressor(n_estimators=100, learning_rate=0.5, max_depth=1, random_state=0, loss='lad'),
+            ]
     else:
 
         # model = GradientBoostingRegressor(n_estimators=100, learning_rate=0.1, max_depth=1, random_state=1, loss='lad')
@@ -202,7 +210,7 @@ def parse_arg(argv):
     config['date'] = True
     config['city_group'] = True
     config['city_name'] = True
-    config['type'] = True
+    config['type'] = True    
 
     for arg in argv:
         if arg == '-t':
@@ -230,6 +238,8 @@ def parse_arg(argv):
             config.pop('type', None)
             config.pop('city_name', None)
             config.pop('city_group', None)
+        if arg == '-huahua':
+            config['huahua'] = True
     return config
 
 if __name__ == '__main__':
