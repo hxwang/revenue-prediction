@@ -17,7 +17,6 @@ def read_csv_all(filename):
     return rows
 
 
-
 def read_csv_header(filename):
     with open(filename, 'r') as f:
         reader = csv.reader(f, delimiter=',')
@@ -48,7 +47,6 @@ def get_all_rows(train, test):
     rows_train = read_csv(train)
     rows_test = read_csv(test)
     rows = rows_train + rows_test
-
 
     return rows, rows_train, rows_test
 
@@ -161,13 +159,13 @@ if __name__ == '__main__':
     y_train = rows_train[:, len(rows_train[0])-1]
     X_test  = rows_test
 
+    X_all   = np.vstack((X_train, X_train))
+
     # standization, mean = 0, variance = 1
-    # X_all = preprocessing.scale(X_all)
+    X_all = preprocessing.scale(X_all)
 
-    ss = StandardScaler()
-
-    X_train = ss.fit_transform(X_train)
-    X_test  = ss.transform(X_test)
+    X_train = X_all[0:len(X_train),:]
+    X_test  = X_all[len(X_train):len(X_all),:]
     
     # put revenue back
     rows_train = np.c_[X_train, y_train]
