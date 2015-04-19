@@ -59,19 +59,13 @@ def fit(X, y, config = {}):
             
             ########################################################################## 
             # for standardized data
-            KNeighborsRegressor(n_neighbors=22, weights = 'distance'),
-            svm.NuSVR(nu=0.25, C=2.3e7, degree=2, gamma=0.0047),
-            #svm.NuSVR(nu=0.33, C=9e6, degree=2, gamma=0.0092),
-            # GradientBoostingRegressor(n_estimators=80, learning_rate=0.2, max_depth=1, random_state=1, loss='lad'),
-
-            # avg:  2.36456772543 total_var: 21.5326576549
-            BaggingRegressor(n_estimators=100, n_jobs=-1, max_features = 15)
+           
 
             ###########################################################################
-            # KNeighborsRegressor(n_neighbors=22, weights = 'distance'),
-            # svm.NuSVR(nu=0.27, C=2.3e7, degree=2, gamma=0.0047),
-            # #svm.NuSVR(nu=0.33, C=9e6, degree=2, gamma=0.0092),
-            # GradientBoostingRegressor(n_estimators=100, learning_rate=0.15, max_depth=1, random_state=1, loss='lad'),
+            KNeighborsRegressor(n_neighbors=22, weights = 'distance'),
+            svm.NuSVR(nu=0.27, C=2.3e7, degree=2, gamma=0.0047),
+            #svm.NuSVR(nu=0.33, C=9e6, degree=2, gamma=0.0092),
+            GradientBoostingRegressor(n_estimators=100, learning_rate=0.15, max_depth=1, random_state=1, loss='lad'),
 
             ########################################################################## 
             # for standardized pcaed data
@@ -114,7 +108,7 @@ def fit(X, y, config = {}):
         # model = GradientBoostingRegressor(n_estimators=80, learning_rate=0.2, max_depth=1, random_state=1, loss='lad')
 
         # # avg:  2.36456772543 total_var: 21.5326576549
-        model = BaggingRegressor(n_estimators=100, n_jobs=-1, max_features = 15)
+        # model = BaggingRegressor(n_estimators=100, n_jobs=-1, max_features = 15)
         # model = BaggingRegressor(n_estimators=100, n_jobs=-1, max_features = 15)
 
         # model = RandomForestRegressor(n_estimators=10, n_jobs=-1)
@@ -145,7 +139,9 @@ def fit(X, y, config = {}):
         # model = DecisionTreeRegressor()
 
         # score: 2.54716252715
-        # model = svm.SVR(C=1, degree=3, gamma=0.03)
+        # model = svm.SVR(C=0.01, degree=3, gamma=0.0000025)
+        # total avg:  2.55070552804 total_var: 37.7768440307
+        model = svm.SVR(kernel='poly', coef0 = 60, C=6, degree=2, gamma=0.004)
 
         models = [ model ]
 
