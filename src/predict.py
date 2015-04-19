@@ -60,11 +60,18 @@ def fit(X, y, config = {}):
             ########################################################################## 
             # for standardized data
             KNeighborsRegressor(n_neighbors=22, weights = 'distance'),
-            svm.NuSVR(nu=0.27, C=2.3e7, degree=2, gamma=0.0047),
+            svm.NuSVR(nu=0.25, C=2.3e7, degree=2, gamma=0.0047),
             #svm.NuSVR(nu=0.33, C=9e6, degree=2, gamma=0.0092),
-            GradientBoostingRegressor(n_estimators=100, learning_rate=0.1, max_depth=1, random_state=1, loss='lad')
-            ###########################################################################
+            # GradientBoostingRegressor(n_estimators=80, learning_rate=0.2, max_depth=1, random_state=1, loss='lad'),
 
+            # avg:  2.36456772543 total_var: 21.5326576549
+            BaggingRegressor(n_estimators=100, n_jobs=-1, max_features = 15)
+
+            ###########################################################################
+            # KNeighborsRegressor(n_neighbors=22, weights = 'distance'),
+            # svm.NuSVR(nu=0.27, C=2.3e7, degree=2, gamma=0.0047),
+            # #svm.NuSVR(nu=0.33, C=9e6, degree=2, gamma=0.0092),
+            # GradientBoostingRegressor(n_estimators=100, learning_rate=0.15, max_depth=1, random_state=1, loss='lad'),
 
             ########################################################################## 
             # for standardized pcaed data
@@ -101,7 +108,14 @@ def fit(X, y, config = {}):
 
         # model =  RandomForestRegressor(n_estimators=70, n_jobs=-1)
 
-        # model = BaggingRegressor(n_estimators=50, n_jobs=-1)
+        #  model = KNeighborsRegressor(n_neighbors=22, weights = 'distance')
+        # model = svm.NuSVR(nu=0.25, C=2.3e7, degree=2, gamma=0.0047)
+        # #svm.NuSVR(nu=0.33, C=9e6, degree=2, gamma=0.0092),
+        # model = GradientBoostingRegressor(n_estimators=80, learning_rate=0.2, max_depth=1, random_state=1, loss='lad')
+
+        # # avg:  2.36456772543 total_var: 21.5326576549
+        model = BaggingRegressor(n_estimators=100, n_jobs=-1, max_features = 15)
+        # model = BaggingRegressor(n_estimators=100, n_jobs=-1, max_features = 15)
 
         # model = RandomForestRegressor(n_estimators=10, n_jobs=-1)
         # model = svm.NuSVR(nu=0.27, C=1.6e7, degree=2, gamma=0.0076)
@@ -125,13 +139,13 @@ def fit(X, y, config = {}):
 
         # score: 2.43654929108 weights = uniform
         # score: 2.37613424202 n_neighbors=20, weights = distance, test: 1730840.19422
-        model = KNeighborsRegressor(n_neighbors=28, weights = 'distance')
+        # model = KNeighborsRegressor(n_neighbors=28, weights = 'distance')
 
         # score: 3.40178270362
         # model = DecisionTreeRegressor()
 
         # score: 2.54716252715
-        # model = svm.SVR(C=1.3, degree=3, gamma=0.05)
+        # model = svm.SVR(C=1, degree=3, gamma=0.03)
 
         models = [ model ]
 
@@ -176,7 +190,8 @@ def k_folds(X, y, k = 5, config={}):
 
     kf = cross_validation.KFold(n=n, n_folds=k, shuffle=shuffle)
 
-    total_score = 0.0
+    # total_score = 0.0
+    total_score_arr = []
 
     for train_index, test_index in kf:
         X_train, X_test = X[train_index], X[test_index]
@@ -185,14 +200,18 @@ def k_folds(X, y, k = 5, config={}):
         y_predict = predict(models, X_test)
 
         score = math.sqrt(mean_squared_error(y_predict, y_test))
+        print 'score: ', score/ 1e6
+        # total_score += score
+        total_score_arr.append(score)
+    score = np.mean(total_score_arr)
+    variance = np.var(total_score_arr)
 
-        total_score += score
+    print 'avg score =', score / 1e6 , 'var' , variance /1e10     
 
-        print 'score =', score / 1e6        
 
-    total_score /= k
+   
 
-    return total_score
+    return total_score_arr
 
 def predict_test(X_train, y_train, X_test, config):
     
@@ -202,6 +221,7 @@ def predict_test(X_train, y_train, X_test, config):
     y_predict = predict(models, X_test)
 
     solution_filename = 'solution.csv'
+    print 'y_predict-share', y_predict.shape
 
     write_solution(solution_filename, y_predict)
 
@@ -211,8 +231,10 @@ def parse_arg(argv):
     config['city_group'] = True
     config['city_name'] = True
     config['type'] = True    
+    config['kfolds'] = 5
 
-    for arg in argv:
+    for i in range(0, len(argv)):
+        arg = argv[i]
         if arg == '-t':
             config['test'] = True
         if arg == '-pca':
@@ -240,6 +262,8 @@ def parse_arg(argv):
             config.pop('city_group', None)
         if arg == '-huahua':
             config['huahua'] = True
+        if arg == '-kfolds':
+            config['kfolds'] = int(argv[i+1])
     return config
 
 if __name__ == '__main__':
@@ -281,16 +305,22 @@ if __name__ == '__main__':
     # calcualte average Root Mean Squared Eror (RMSE)
     total_avg = 0.0
 
-    repeat = 10 if 'repeat' in config else 1
-
+    repeat = 30 if 'repeat' in config else 1
+    total_score_arr = []
     for i in range(repeat):
         print '----- repeat %s ----' % i
-        avg_score = k_folds(X_train, y_train, k=5, config=config)
-        total_avg += avg_score
+        score_arr = k_folds(X_train, y_train, k=config['kfolds'], config=config)
+        total_score_arr +=  score_arr
+    
+    total_score_arr = np.array(total_score_arr)
 
-    total_avg /= repeat
+    print 'total_score_arr shape', total_score_arr.shape
+        # total_avg += score_arr
+    total_avg = np.mean(total_score_arr)/ 1e6
+    total_var = np.var(total_score_arr)/ 1e10
+    # total_avg /= repeat
 
-    print total_avg / 1e6
+    print "total avg: ", total_avg, "total_var:", total_var
 
     ################################################
     # run test
@@ -298,4 +328,5 @@ if __name__ == '__main__':
     if 'test' in config:
         X_test = np.array(read_csv(test_filename), dtype=float)
         X_test = X_test[:, cols]
+        print 'X_test.shape', X_test.shape
         predict_test(X_train, y_train, X_test, config)

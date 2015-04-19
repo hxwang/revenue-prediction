@@ -42,10 +42,10 @@ def pca_transform(train, test, pca_train, pca_test):
 
 	# put revenue back
 	train_reduced = np.c_[train_reduced, revenue]
-	print 'train_reduced.shape', train_reduced.shape
+	# print 'train_reduced.shape', train_reduced.shape
 
 	test_reduced = pca.transform(rows_test)
-	print 'test_reduced.shape', test_reduced.shape
+	# print 'test_reduced.shape', test_reduced.shape
 
 	# create csv header
 	header = ['attr' + str(i) for i in range(n_components)]
