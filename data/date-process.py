@@ -104,6 +104,7 @@ if __name__ == '__main__':
 
 
     pca_file = 'pca_all_date_transfered.csv'
+    # pca_file = 'pca_all_date_transfered_no_cityname.csv'
     pca_all = np.array(read_csv(pca_file))
     pca_train = pca_all[0:len(rows_train), :]
     print 'pca_train.shape', pca_train.shape

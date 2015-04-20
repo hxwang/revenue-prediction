@@ -217,9 +217,23 @@ def fit(X, y, config = {}):
                 svm.NuSVR(nu=0.6, C=1e2, degree=2, gamma=0.16),
                 GradientBoostingRegressor(n_estimators=100, learning_rate=0.7, max_depth=1, random_state=0, loss='lad'),
             ]
+
+            # best score for pca
+            # models = [
+            #     KNeighborsRegressor(n_neighbors=30, weights='distance'),            
+            #     svm.NuSVR(nu=0.5, C=5e6, degree=2, gamma=0.55),
+            #     GradientBoostingRegressor(n_estimators=100, learning_rate=0.1, max_depth=1, random_state=0, loss='lad'),
+            # ]
+            # best record without pca
+            # models = [
+            #     KNeighborsRegressor(n_neighbors=22, weights='distance'),            
+            #     svm.NuSVR(nu=0.6, C=1e2, degree=2, gamma=0.16),
+            #     GradientBoostingRegressor(n_estimators=100, learning_rate=0.7, max_depth=1, random_state=0, loss='lad'),
+            # ]
     else:
 
-        model = GradientBoostingRegressor(n_estimators=100, learning_rate=0.7, max_depth=1, random_state=0, loss='lad')
+        # model = GradientBoostingRegressor(n_estimators=100, learning_rate=0.1, max_depth=1, random_state=0, loss='lad')
+        model = GradientBoostingRegressor(n_estimators=100, learning_rate=0.6, max_depth=1, random_state=0, loss='lad')
 
         # model =  RandomForestRegressor(n_estimators=70, n_jobs=-1)
 
@@ -330,9 +344,9 @@ def k_folds_one_class(X, y, k = 5, config={}):
 
         y_predict = predict(models, X_test, config)
 
-        # if 'figure' in config:
-        #     # visualize predict results
-        #     visualize_predict(y_predict, y_test)
+        if 'figure' in config:
+            # visualize predict results
+            visualize_predict(y_predict, y_test)
        
         score = math.sqrt(mean_squared_error(y_predict, y_test))
         print 'score: ', score/ 1e6
@@ -514,8 +528,8 @@ if __name__ == '__main__':
     test_filename = '../data/test_cleaned.csv'
 
     if 'pca' in config:
-        train_filename = '../data/train_pca.csv'
-        test_filename = '../data/test_pca.csv'
+        train_filename = '../data/pca_train.csv'
+        test_filename = '../data/pca_test.csv'
 
     # read training data and convert to numpy array
     train_data = np.array(read_csv(train_filename), dtype=float)
