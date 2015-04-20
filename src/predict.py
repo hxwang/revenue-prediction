@@ -91,9 +91,9 @@ def fit(X, y, config = {}):
 
         if 'huahua' in config:
             models = [
-                KNeighborsRegressor(n_neighbors=23, weights='distance'),                
+                KNeighborsRegressor(n_neighbors=22, weights='distance'),
                 svm.NuSVR(nu=0.25, C=1.5e7, degree=2, gamma=0.0042),
-                GradientBoostingRegressor(n_estimators=100, learning_rate=0.5, max_depth=1, random_state=0, loss='lad'),
+                GradientBoostingRegressor(n_estimators=100, learning_rate=0.5, max_depth=1, random_state=0, loss='lad')                
             ]
     else:
 
@@ -200,6 +200,8 @@ def predict_test(X_train, y_train, X_test, config):
 
     models = fit(X_train, y_train, config)
     y_predict = predict(models, X_test)
+
+    print 'min = %s max = %s mean = %s stddev = %s' % (np.min(y_predict), np.max(y_predict), np.mean(y_predict), np.std(y_predict))
 
     solution_filename = 'solution.csv'
 
