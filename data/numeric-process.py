@@ -149,23 +149,30 @@ if __name__ == '__main__':
     # tranfrom data to numeric types
     rows_train = transform_data(rows_train, city_names, city_groups, types)
     rows_test = transform_data(rows_test, city_names, city_groups, types)
+    
 
     # convert to float type
     rows_train = np.array(rows_train, dtype = float)
     rows_test = np.array(rows_test, dtype = float)
+    # print 'rows_test.shapre', rows_test.shape
 
 
+    # merge train and test in order to do processing together
     X_train = rows_train[:, 0:len(rows_train[0])-1]
     y_train = rows_train[:, len(rows_train[0])-1]
     X_test  = rows_test
 
-    X_all   = np.vstack((X_train, X_train))
+    X_all   = np.vstack((X_train, rows_test))
+    # print 'X_all.shapre', X_all.shape
+    
 
     # standization, mean = 0, variance = 1
-    X_all = preprocessing.scale(X_all)
+    X_all = scale(X_all)
 
+    # split trainning and test data
     X_train = X_all[0:len(X_train),:]
     X_test  = X_all[len(X_train):len(X_all),:]
+    # print 'X_test.shapre', X_test.shape
     
     # put revenue back
     rows_train = np.c_[X_train, y_train]
