@@ -379,9 +379,7 @@ def resample(X_train, y_train,  threshold = 9e6, ratio = 0.2):
     X = []
     y = []
 
-
     # prob = normalize(np.absolute(scale(y_train)))[0]
-
     # print prob
 
     while len(X) < len(X_train) * 2:
