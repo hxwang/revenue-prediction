@@ -123,7 +123,7 @@ def transform_data(rows, city_names, city_groups, types):
 
     for row in rows:        
         row[1] = datetime.datetime.strptime(row[1], '%m/%d/%Y').date()
-        row[1] = int(time.mktime(row[1].timetuple()))
+        row[1] = int(time.mktime(row[1].timetuple()))    
         # transform using dictionary city_names, city_groups, types
         row[2] = city_names[row[2]]
         row[3] = city_groups[row[3]]

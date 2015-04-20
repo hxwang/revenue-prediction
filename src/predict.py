@@ -15,7 +15,7 @@ from sklearn.tree import DecisionTreeRegressor
 from sklearn.ensemble import *
 import matplotlib.pyplot as plt
 from sklearn.grid_search import GridSearchCV
-from sklearn.metrics import fbeta_score, make_scorer
+from sklearn.metrics import *
 from sklearn.preprocessing import *
 
 
@@ -304,15 +304,17 @@ def fit(X, y, config = {}):
 predict by given models
 models: given models
 X: record to predict, n*m matrix
+prob: whether predict probability
 return: predicted (mean) revenue, n*1 matrix
 '''
-def predict(models, X, config={}):
+def predict(models, X, config={}, prob=False):
 
     ys = []
 
     for model in models:
-        print 'predicting...'    
-        ys.append(model.predict(X))
+        print 'predicting...'
+        pred = model.predict(X) if prob == False else model.predict_proba(X)        
+        ys.append(pred)
 
     # return mean prediction
     y = np.mean(np.array(ys), axis=0)
@@ -454,6 +456,8 @@ def parse_arg(argv):
             config['resample'] = True
         if arg == '-one':
             config['one'] = True
+        if arg == '-three':
+            config['three'] = True
     return config
 
 
@@ -518,6 +522,127 @@ def predict_with_two_class(config, X_train, y_train, X_test, class_split_thresho
         model_zero, model_one = train_regress_model(X_train, y_train, class_split_threshold, config)        
         y_predict = predict_test_two_class(X_test, model_zero, model_one, classify_model)
         return y_predict
+
+
+def kfolds(models, X, y, config={}, measure = 'RMSE'):
+    repeat = 30 if 'repeat' in config else 1
+    total_score_arr = []
+    for i in range(repeat):
+        print '----- repeat %s ----' % i
+        
+        n = len(X)
+        k = config['kfolds']
+
+        shuffle = True if 'shuffle' in config else False
+
+        kf = cross_validation.KFold(n=n, n_folds=k, shuffle=shuffle)
+    
+        score_arr = []
+
+        predict_proba = measure == 'PROBA'
+
+        for train_index, test_index in kf:
+            X_train, X_test = X[train_index], X[test_index]
+            y_train, y_test = y[train_index], y[test_index]
+            for m in models: m.fit(X_train, y_train)
+            y_predict = predict(models, X_test, config, predict_proba)
+
+            if measure == 'RMSE':
+                score = math.sqrt(mean_squared_error(y_predict, y_test))
+            elif measure == 'PROBA':
+                score = log_loss(y_test, y_predict)
+
+            score_arr.append(score)
+
+            print 'score: ', score/ 1e6
+
+            if 'figure' in config and measure == 'RMSE':
+                # visualize predict results
+                visualize_predict(y_predict, y_test)
+
+        total_score_arr +=  score_arr
+
+    total_avg = np.mean(total_score_arr)/ 1e6
+    total_var = np.var(total_score_arr)/ 1e10    
+
+    print "total avg: ", total_avg, "total_var:", total_var
+
+    return total_avg, total_var
+
+def predict_with_three_classes(X_train, y_train, X_test, config):
+    # 3 x 1 matrix
+    split_points = np.percentile(y_train, [66])
+
+    index1, index2 = y_train <= split_points[0], y_train>=split_points[0]
+
+    X_train1, X_train2 = X_train[index1], X_train[index2]
+    y_train1, y_train2 = y_train[index1], y_train[index2]
+
+    labels = np.zeros(len(y_train))
+
+    labels[index1], labels[index2] = 0, 1
+
+    # for smaller revenue
+    models1 = [
+        KNeighborsRegressor(n_neighbors=22, weights='distance'),            
+        svm.NuSVR(nu=0.3, C=1e2, degree=2, gamma=0.5),
+        GradientBoostingRegressor(n_estimators=100, learning_rate=0.7, max_depth=1, random_state=0, loss='lad'),
+    ]
+
+    total_avg1, total_var1 = kfolds(models1, X_train1, y_train1, config)
+
+    print '------------------------------'
+
+    # for high revenue
+    models2 = [
+        #KNeighborsRegressor(n_neighbors=3, weights='distance'),            
+        # svm.NuSVR(nu=0.6, C=1e4, degree=2, gamma=0.2),
+        GradientBoostingRegressor(n_estimators=150, learning_rate=1.0, max_depth=1, random_state=0, loss='lad'),
+    ]
+
+    total_avg2, total_var2 = kfolds(models2, X_train2, y_train2, config)
+    
+    print '------------------------------'
+
+    print 'p_models1 avg/var = %s / %s' % (total_avg1, total_var1)
+
+    print 'p_models2 avg/var = %s / %s' % (total_avg2, total_var2)
+
+    c_models = [svm.NuSVC(nu=0.4, gamma=0.002, probability=True)]
+    
+    total_avg_c, total_var_c = kfolds(c_models, X_train, labels, config = config, measure = 'PROBA')
+
+    print 'c_models avg/var = %s / %s' % (total_avg_c, total_var_c)
+
+    if 'test' not in config: return    
+
+    for m in models1:
+        m.fit(X_train1, y_train1)
+
+    for m in models2:
+        m.fit(X_train2, y_train2)
+
+    for c_model in c_models:
+        c_model.fit(X_train, labels)
+
+    # predict probbility
+    y_pred_proba = predict(c_models, X_test, config, prob = True)
+
+    low_rev_count = sum(y_pred_proba[:,0] > 0.5)
+    high_rev_count = len(y_pred_proba) - low_rev_count
+    
+    print 'low revenue / high revenue = %s / %s' % (low_rev_count, high_rev_count)
+
+    # predict revenue
+    y_pred = np.sum(
+        [
+            np.multiply(predict(models1, X_test, config), y_pred_proba[:,0]),
+            np.multiply(predict(models2, X_test, config), y_pred_proba[:,1])
+        ],
+        axis = 0)
+
+    return y_pred
+
         
 
 if __name__ == '__main__':
@@ -557,7 +682,6 @@ if __name__ == '__main__':
     # split training data to (record) and (predicted value)
     X_train = train_data[:, cols]
     y_train = train_data[:, len(train_data[0])-1]
-    
 
     # settings
     class_split_threshold = 17e6
@@ -575,6 +699,8 @@ if __name__ == '__main__':
     print X_train.shape
     if 'one' in config:
         y_predict = predict_with_one_class(config, X_train, y_train, X_test)
+    elif 'three' in config:
+        y_predict = predict_with_three_classes(X_train, y_train, X_test, config)
     else:
         y_predict = predict_with_two_class(config, X_train, y_train, X_test, class_split_threshold)
 
