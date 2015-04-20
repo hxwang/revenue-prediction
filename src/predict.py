@@ -153,8 +153,17 @@ def predict_test_two_class(X_test, model_zero, model_one, model):
     y_predict[y_test_label==1] = y_predict_one
     return y_predict
 
+# scale X for knn based on feature importance
+def scale_X_knn(X, config):
+    if 'feature_importances' not in config: return X
 
+    fi = config['feature_importances']
 
+    TX = np.copy(X)
+    for i in range(0, len(X[0])):
+        TX[:, i] = TX[:, i] * fi[i]
+
+    return TX
 
 
 
@@ -213,9 +222,9 @@ def fit(X, y, config = {}):
 
         if 'huahua' in config:
             models = [
-                KNeighborsRegressor(n_neighbors=22, weights='distance'),            
-                svm.NuSVR(nu=0.6, C=1e2, degree=2, gamma=0.16),
-                GradientBoostingRegressor(n_estimators=100, learning_rate=0.7, max_depth=1, random_state=0, loss='lad'),
+                KNeighborsRegressor(n_neighbors=22, weights='distance'),
+                svm.NuSVR(nu=0.25, C=1.2e7, degree=2, gamma=0.0042),
+                GradientBoostingRegressor(n_estimators=100, learning_rate=0.5, max_depth=1, random_state=0, loss='lad'),
             ]
 
             # best score for pca
@@ -232,8 +241,10 @@ def fit(X, y, config = {}):
             # ]
     else:
 
+        model = KNeighborsRegressor(n_neighbors=22, weights='distance')
+
         # model = GradientBoostingRegressor(n_estimators=100, learning_rate=0.1, max_depth=1, random_state=0, loss='lad')
-        model = GradientBoostingRegressor(n_estimators=100, learning_rate=0.6, max_depth=1, random_state=0, loss='lad')
+        #model = GradientBoostingRegressor(n_estimators=100, learning_rate=0.6, max_depth=1, random_state=0, loss='lad')
 
         # model =  RandomForestRegressor(n_estimators=70, n_jobs=-1)
 
@@ -295,8 +306,13 @@ def fit(X, y, config = {}):
 
 
     for model in models:
-        print 'fitting model...'
-        model.fit(X, y)
+        print 'fitting model %s' % type(model).__name__
+
+        TX = X
+        if type(model).__name__ == 'KNeighborsRegressor':
+            TX = scale_X_knn(X, config)
+            
+        model.fit(TX, y)
 
     return models
 
@@ -313,7 +329,12 @@ def predict(models, X, config={}, prob=False):
 
     for model in models:
         print 'predicting...'
-        pred = model.predict(X) if prob == False else model.predict_proba(X)        
+
+        TX = X
+        if type(model).__name__ == 'KNeighborsRegressor':
+            TX = scale_X_knn(X, config)
+
+        pred = model.predict(TX) if prob == False else model.predict_proba(TX)
         ys.append(pred)
 
     # return mean prediction
@@ -549,8 +570,8 @@ def kfolds(models, X, y, config={}, measure = 'RMSE'):
 
             if measure == 'RMSE':
                 score = math.sqrt(mean_squared_error(y_predict, y_test))
-            elif measure == 'PROBA':
-                score = log_loss(y_test, y_predict)
+            elif measure == 'PROBA':                
+                score = brier_score_loss(y_test, y_predict[:,1])
 
             score_arr.append(score)
 
@@ -582,7 +603,6 @@ def predict_with_three_classes(X_train, y_train, X_test, config):
 
     labels[index1], labels[index2] = 0, 1
 
-    # for smaller revenue
     models1 = [
         KNeighborsRegressor(n_neighbors=22, weights='distance'),            
         svm.NuSVR(nu=0.3, C=1e2, degree=2, gamma=0.5),
@@ -595,9 +615,9 @@ def predict_with_three_classes(X_train, y_train, X_test, config):
 
     # for high revenue
     models2 = [
-        #KNeighborsRegressor(n_neighbors=3, weights='distance'),            
-        # svm.NuSVR(nu=0.6, C=1e4, degree=2, gamma=0.2),
+        KNeighborsRegressor(n_neighbors=25, weights='distance'),                    
         GradientBoostingRegressor(n_estimators=150, learning_rate=1.0, max_depth=1, random_state=0, loss='lad'),
+        svm.NuSVR(nu=0.2, C=3e8, degree=2, gamma=0.0001)
     ]
 
     total_avg2, total_var2 = kfolds(models2, X_train2, y_train2, config)
@@ -608,7 +628,7 @@ def predict_with_three_classes(X_train, y_train, X_test, config):
 
     print 'p_models2 avg/var = %s / %s' % (total_avg2, total_var2)
 
-    c_models = [svm.NuSVC(nu=0.4, gamma=0.002, probability=True)]
+    c_models = [svm.NuSVC(nu=0.4, gamma=0.0025, probability=True)]
     
     total_avg_c, total_var_c = kfolds(c_models, X_train, labels, config = config, measure = 'PROBA')
 
@@ -630,7 +650,7 @@ def predict_with_three_classes(X_train, y_train, X_test, config):
 
     low_rev_count = sum(y_pred_proba[:,0] > 0.5)
     high_rev_count = len(y_pred_proba) - low_rev_count
-    
+
     print 'low revenue / high revenue = %s / %s' % (low_rev_count, high_rev_count)
 
     # predict revenue
@@ -682,6 +702,13 @@ if __name__ == '__main__':
     # split training data to (record) and (predicted value)
     X_train = train_data[:, cols]
     y_train = train_data[:, len(train_data[0])-1]
+
+    # feature selection
+    rfc = RandomForestClassifier()
+    rfc.fit(X_train, y_train)
+    feature_importances = np.square(np.array(rfc.feature_importances_))
+    config['feature_importances'] = feature_importances
+    print feature_importances
 
     # settings
     class_split_threshold = 17e6
