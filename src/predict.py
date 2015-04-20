@@ -45,18 +45,15 @@ def write_solution(filename, y):
     print 'done'
 
 
-'''
-return model
-'''
-def train_classcification_model(X, y, threshold = 9e6, config={}):
+def k_folds_two_class(X,y, split_point, k, config):
     labels = binarize(y, split_point)[0]
-    print X.shape
-    print labels.shape
-
     n = len(X)
-    k = 3
-    shuffle = True
-
+   
+    shuffle = False
+    if 'shuffle' in config:
+        shuffle = True
+        
+    total_score_arr = []
     # k fold
     kf = cross_validation.KFold(n=n, n_folds=k, shuffle=shuffle)
 
@@ -68,20 +65,96 @@ def train_classcification_model(X, y, threshold = 9e6, config={}):
         #model = KNeighborsClassifier(n_neighbors = 5, weights='distance')
         model.fit(X_train, y_train)
 
-        predicted = model.predict(X_test)
+        y_predict = model.predict(X_test)
 
         if 'figure' in config:
-            visualize_predict(predicted, y_test) 
+            visualize_predict(y_predict, y_test) 
+
+        score = math.sqrt(mean_squared_error(y_predict, y_test))
+        print 'score: ', score
+        # total_score += score
+        total_score_arr.append(score)
+
+    score = np.mean(total_score_arr)
+    variance = np.var(total_score_arr)
+
+    print 'avg score =', score , 'var' , variance    
+
+    return total_score_arr
+
+'''
+train classification model 
+return: trained model
+'''
+def train_classcification_model(X, y, split_point, config={}):
+    labels = binarize(y, split_point)[0]
+    print X.shape
+    print labels.shape
 
     # train with all data 
     model = svm.SVC()
-    model.fit(X, y)
+    model.fit(X, labels)
     return model       
 
-def classifify_data(X_test, model):
-    y_test_label = model.predict(X_test)
+'''
+train the regression model for class0 and class1
+return: models for class0 and class1
+'''
+def train_regress_model(X_train,  y_train, split_point, config):
+    y_label = binarize(y_train, split_point)[0]
+    X_train_zero = X_train[y_label==0]
+    X_train_one = X_train[y_label == 1]
+    y_train_zero = y_train[y_label==0]
+    y_train_one = y_train[y_label==1]
 
-def predict_test_by_class(X_test, y_test_label, model):
+    
+    if 'ensemble' in config:
+        model_zero = [
+            KNeighborsRegressor(n_neighbors=22, weights='distance'),            
+            svm.NuSVR(nu=0.6, C=1e2, degree=2, gamma=0.16),
+            GradientBoostingRegressor(n_estimators=100, learning_rate=0.7, max_depth=1, random_state=0, loss='lad')
+        ]
+    else:
+        model_zero = svm.NuSVR(nu=0.33, C=9e6, degree=2, gamma=0.0092)
+    
+    for model in model_zero:
+        model.fit(X_train_zero, y_train_zero)
+    model_one = svm.NuSVR(nu=0.33, C=9e6, degree=2, gamma=0.0092)
+    # model_zero.fit(X_train_zero, y_train_zero)
+    model_one.fit(X_train_one, y_train_one)
+
+    return model_zero, model_one
+
+'''
+predict the results of test data using two trainied regression model
+return: predict result
+'''
+def predict_test_two_class(X_test, model_zero, model_one, model):
+    y_test_label = model.predict(X_test)
+    print y_test_label
+
+    X_test_zero = X_test[y_test_label==0]
+    X_test_one = X_test[y_test_label==1]
+
+    print 'X_test_zero = %s X_test_one = %s' % (X_test_zero.shape, X_test_one.shape)
+
+    y_predict_zero_all = []
+    for m in model_zero:
+        y_predict_zero_all.append(m.predict(X_test_zero))
+    y_predict_zero = np.mean(np.array(y_predict_zero_all), axis=0)
+
+
+    # y_predict_zero = model_zero.predict(X_test_zero)
+    y_predict_one = model_one.predict(X_test_one)
+
+    y_predict = np.zeros(len(X_test))
+
+    y_predict[y_test_label==0] = y_predict_zero
+    y_predict[y_test_label==1] = y_predict_one
+    return y_predict
+
+
+
 
 
 
@@ -240,7 +313,7 @@ def predict(models, X, config={}):
 k fold validation
 return: average Root Mean Squared Eroor (RMSE)
 '''
-def k_folds(X, y, k = 5, config={}):
+def k_folds_one_class(X, y, k = 5, config={}):
     n = len(X)
 
     shuffle = True if 'shuffle' in config else False
@@ -298,10 +371,7 @@ def predict_test(X_train, y_train, X_test, config):
     models = fit(X_train, y_train, config)
     y_predict = predict(models, X_test, config)
 
-    solution_filename = 'solution.csv'
-    print 'y_predict-share', y_predict.shape
-
-    write_solution(solution_filename, y_predict)
+    return y_predict
 
 # resample towards high revenue
 def resample(X_train, y_train,  threshold = 9e6, ratio = 0.2):
@@ -370,7 +440,73 @@ def parse_arg(argv):
             config['figure'] = True
         if arg == '-resample':
             config['resample'] = True
+        if arg == '-one':
+            config['one'] = True
     return config
+
+
+def predict_with_one_class(config, X_train, y_train, X_test):
+    # calcualte average Root Mean Squared Eror (RMSE)
+    total_avg = 0.0
+
+    repeat = 30 if 'repeat' in config else 1
+    total_score_arr = []
+    for i in range(repeat):
+        print '----- repeat %s ----' % i
+        score_arr = k_folds_one_class(X_train, y_train, k=config['kfolds'], config=config)
+        total_score_arr +=  score_arr
+    
+    total_score_arr = np.array(total_score_arr)
+
+    print 'total_score_arr shape', total_score_arr.shape
+        # total_avg += score_arr
+    total_avg = np.mean(total_score_arr)/ 1e6
+    total_var = np.var(total_score_arr)/ 1e10
+    # total_avg /= repeat
+
+    print "total avg: ", total_avg, "total_var:", total_var
+
+    ################################################
+    # run test
+
+    if 'test' in config:
+       
+        print 'X_test.shape', X_test.shape
+        y_predict = predict_test(X_train, y_train, X_test, config)
+        return y_predict
+
+
+def predict_with_two_class(config, X_train, y_train, X_test, class_split_threshold):
+    # calcualte average Root Mean Squared Eror (RMSE)
+    total_avg = 0.0     
+
+    repeat = 30 if 'repeat' in config else 1
+    total_score_arr = []
+    for i in range(repeat):
+        print '----- repeat %s ----' % i
+        score_arr = k_folds_two_class(X_train, y_train, class_split_threshold,  k=config['kfolds'], config=config)
+        total_score_arr +=  score_arr
+    
+    total_score_arr = np.array(total_score_arr)
+
+    print 'total_score_arr shape', total_score_arr.shape
+        # total_avg += score_arr
+    total_avg = np.mean(total_score_arr)
+    total_var = np.var(total_score_arr)
+    # total_avg /= repeat
+
+    print "total avg: ", total_avg, "total_var:", total_var
+
+    ################################################
+    # run test
+
+    if 'test' in config:
+        print 'X_test.shape', X_test.shape
+        classify_model = train_classcification_model(X_train, y_train, class_split_threshold, config)
+        model_zero, model_one = train_regress_model(X_train, y_train, class_split_threshold, config)        
+        y_predict = predict_test_two_class(X_test, model_zero, model_one, classify_model)
+        return y_predict
+        
 
 if __name__ == '__main__':
 
@@ -385,6 +521,8 @@ if __name__ == '__main__':
 
     # read training data and convert to numpy array
     train_data = np.array(read_csv(train_filename), dtype=float)
+    
+   
 
     if 'pca' in config:
         # if use pca, use all features
@@ -407,44 +545,32 @@ if __name__ == '__main__':
     # split training data to (record) and (predicted value)
     X_train = train_data[:, cols]
     y_train = train_data[:, len(train_data[0])-1]
-
+    
 
     # settings
-    class_split_threshold =  9e6
+    class_split_threshold = 17e6
 
     #resample
     if('resample' in config):
         X_train, y_train = resample(X_train, y_train, threshold = class_split_threshold)
 
-    train_classcification_model(X_train, y_train, threshold = class_split_threshold,  config = config)
-    
-   
-
-    # calcualte average Root Mean Squared Eror (RMSE)
-    total_avg = 0.0
-
-    repeat = 30 if 'repeat' in config else 1
-    total_score_arr = []
-    for i in range(repeat):
-        print '----- repeat %s ----' % i
-        score_arr = k_folds(X_train, y_train, k=config['kfolds'], config=config)
-        total_score_arr +=  score_arr
-    
-    total_score_arr = np.array(total_score_arr)
-
-    print 'total_score_arr shape', total_score_arr.shape
-        # total_avg += score_arr
-    total_avg = np.mean(total_score_arr)/ 1e6
-    total_var = np.var(total_score_arr)/ 1e10
-    # total_avg /= repeat
-
-    print "total avg: ", total_avg, "total_var:", total_var
-
-    ################################################
-    # run test
-
+    # train_classcification_model(X_train, y_train, threshold = class_split_threshold,  config = config)
+    X_test = []
     if 'test' in config:
         X_test = np.array(read_csv(test_filename), dtype=float)
         X_test = X_test[:, cols]
-        print 'X_test.shape', X_test.shape
-        predict_test(X_train, y_train, X_test, config)
+
+    print X_train.shape
+    if 'one' in config:
+        y_predict = predict_with_one_class(config, X_train, y_train, X_test)
+    else:
+        y_predict = predict_with_two_class(config, X_train, y_train, X_test, class_split_threshold)
+
+    if 'test' in config:
+        solution_filename = 'solution.csv'
+        print 'y_predict-share', y_predict.shape
+
+        write_solution(solution_filename, y_predict)
+
+
+
