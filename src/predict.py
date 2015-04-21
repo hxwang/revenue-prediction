@@ -17,6 +17,7 @@ import matplotlib.pyplot as plt
 from sklearn.grid_search import GridSearchCV
 from sklearn.metrics import *
 from sklearn.preprocessing import *
+from sklearn.cluster import *
 
 
 '''
@@ -570,14 +571,27 @@ def kfolds(models, X, y, config={}, measure = 'RMSE'):
 
             if measure == 'RMSE':
                 score = math.sqrt(mean_squared_error(y_predict, y_test))
+                print 'score: ', score/ 1e6
             elif measure == 'PROBA':                
-                score = brier_score_loss(y_test, y_predict[:,1])
+                # score = brier_score_loss(y_test, y_predict[:,1])
+                y_pred_labels = np.zeros(len(y_test))
+                y_pred_labels[y_predict[:, 1]>=0.5] = 1
+
+                # print 'prob = ', y_predict
+                # print 'predicted_labels = ', y_pred_labels                
+                # print 'actual_labels = ', y_test
+
+                score = np.sum(np.absolute(np.subtract(y_test, y_pred_labels)))
+
+                # use labels as result for visualization
+                y_predict = y_pred_labels
+
+                print 'classification error: ', score
 
             score_arr.append(score)
+            
 
-            print 'score: ', score/ 1e6
-
-            if 'figure' in config and measure == 'RMSE':
+            if 'figure' in config:
                 # visualize predict results
                 visualize_predict(y_predict, y_test)
 
@@ -592,9 +606,11 @@ def kfolds(models, X, y, config={}, measure = 'RMSE'):
 
 def predict_with_three_classes(X_train, y_train, X_test, config):
     # 3 x 1 matrix
-    split_points = np.percentile(y_train, [66])
+    split_points = np.percentile(y_train, [90])
 
-    index1, index2 = y_train <= split_points[0], y_train>=split_points[0]
+    print 'split_points', split_points
+
+    index1, index2 = y_train <= split_points[0], y_train>split_points[0]
 
     X_train1, X_train2 = X_train[index1], X_train[index2]
     y_train1, y_train2 = y_train[index1], y_train[index2]
@@ -604,9 +620,9 @@ def predict_with_three_classes(X_train, y_train, X_test, config):
     labels[index1], labels[index2] = 0, 1
 
     models1 = [
-        KNeighborsRegressor(n_neighbors=22, weights='distance'),            
-        svm.NuSVR(nu=0.3, C=1e2, degree=2, gamma=0.5),
-        GradientBoostingRegressor(n_estimators=100, learning_rate=0.7, max_depth=1, random_state=0, loss='lad'),
+        KNeighborsRegressor(n_neighbors=20, weights='distance'),            
+        svm.NuSVR(nu=0.2, C=2e6, degree=2, gamma=0.2),
+        GradientBoostingRegressor(n_estimators=100, learning_rate=0.05, max_depth=1, random_state=0, loss='lad'),
     ]
 
     total_avg1, total_var1 = kfolds(models1, X_train1, y_train1, config)
@@ -615,9 +631,9 @@ def predict_with_three_classes(X_train, y_train, X_test, config):
 
     # for high revenue
     models2 = [
-        KNeighborsRegressor(n_neighbors=25, weights='distance'),                    
-        GradientBoostingRegressor(n_estimators=150, learning_rate=1.0, max_depth=1, random_state=0, loss='lad'),
-        svm.NuSVR(nu=0.2, C=3e8, degree=2, gamma=0.0001)
+        KNeighborsRegressor(n_neighbors=8, weights='distance'),                    
+        GradientBoostingRegressor(n_estimators=150, learning_rate=0.1, max_depth=1, random_state=0, loss='lad'),
+        svm.NuSVR(nu=0.7, C=5e8, degree=2, gamma=0.00005)
     ]
 
     total_avg2, total_var2 = kfolds(models2, X_train2, y_train2, config)
@@ -628,7 +644,20 @@ def predict_with_three_classes(X_train, y_train, X_test, config):
 
     print 'p_models2 avg/var = %s / %s' % (total_avg2, total_var2)
 
-    c_models = [svm.NuSVC(nu=0.4, gamma=0.0025, probability=True)]
+
+    # dbscan = DBSCAN(eps=10)
+    # clustering_results = dbscan.fit_predict(X_train)    
+    # print 'clustring count "-1" = %s "0" = %s "1" = %s' % (np.sum(clustering_results==-1), np.sum(clustering_results==0), np.sum(clustering_results==1))
+    # print 'labels = 0 and cluser = 1 count = %s' % (np.sum(np.subtract(clustering_results, labels)==1))
+    # print y_train[clustering_results==1]
+    # for i in range(0, len(clustering_results)):    
+    #     print labels[i], clustering_results[i]
+
+    c_models = [
+        KNeighborsClassifier(n_neighbors=5, weights='distance'),        
+        BaggingClassifier(n_estimators=100),
+        #GradientBoostingClassifier(n_estimators = 100, learning_rate = 0.1)
+        ]
     
     total_avg_c, total_var_c = kfolds(c_models, X_train, labels, config = config, measure = 'PROBA')
 
@@ -646,20 +675,26 @@ def predict_with_three_classes(X_train, y_train, X_test, config):
         c_model.fit(X_train, labels)
 
     # predict probbility
-    y_pred_proba = predict(c_models, X_test, config, prob = True)
+    y_pred_proba = predict(c_models, X_test, config, prob = True)    
 
-    low_rev_count = sum(y_pred_proba[:,0] > 0.5)
-    high_rev_count = len(y_pred_proba) - low_rev_count
-
-    print 'low revenue / high revenue = %s / %s' % (low_rev_count, high_rev_count)
+    predict_one = predict(models1, X_test, config)
+    predict_two = predict(models2, X_test, config)
 
     # predict revenue
     y_pred = np.sum(
         [
-            np.multiply(predict(models1, X_test, config), y_pred_proba[:,0]),
-            np.multiply(predict(models2, X_test, config), y_pred_proba[:,1])
+            np.multiply(predict_one, y_pred_proba[:,0]),
+            np.multiply(predict_two, y_pred_proba[:,1])
         ],
         axis = 0)
+
+    # y_pred = np.zeros(len(X_test))
+    # low_index, high_index = y_pred_proba[:,1]<0.5, y_pred_proba[:,1]>=0.5
+
+    # print 'high_rev_count = ', np.sum(high_index)
+
+    # y_pred[low_index] = predict_one[low_index]
+    # y_pred[high_index] = predict_two[high_index]    
 
     return y_pred
 
