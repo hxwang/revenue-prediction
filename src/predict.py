@@ -575,7 +575,7 @@ def kfolds(models, X, y, config={}, measure = 'RMSE'):
             elif measure == 'PROBA':                
                 # score = brier_score_loss(y_test, y_predict[:,1])
                 y_pred_labels = np.zeros(len(y_test))
-                y_pred_labels[y_predict[:, 1]>=0.5] = 1
+                y_pred_labels[y_predict[:, 1]>=0.4] = 1
 
                 # print 'prob = ', y_predict
                 # print 'predicted_labels = ', y_pred_labels                
@@ -656,7 +656,9 @@ def predict_with_three_classes(X_train, y_train, X_test, config):
     c_models = [
         KNeighborsClassifier(n_neighbors=5, weights='distance'),        
         BaggingClassifier(n_estimators=100),
-        #GradientBoostingClassifier(n_estimators = 100, learning_rate = 0.1)
+        GradientBoostingClassifier(n_estimators = 100, learning_rate = 0.05)
+        # svm.SVC(probability=True, class_weight=balance_weights, C = 50, kernel='rbf')
+        # RandomForestClassifier(n_estimators = 10, class_weight  = 'subsample')
         ]
     
     total_avg_c, total_var_c = kfolds(c_models, X_train, labels, config = config, measure = 'PROBA')
