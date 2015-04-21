@@ -18,6 +18,8 @@ from sklearn.grid_search import GridSearchCV
 from sklearn.metrics import *
 from sklearn.preprocessing import *
 from sklearn.cluster import *
+from sklearn.gaussian_process import GaussianProcess
+from sklearn import mixture
 
 
 '''
@@ -46,115 +48,25 @@ def write_solution(filename, y):
     print 'done'
 
 
-def k_folds_two_class(X,y, split_point, k, config):
-    labels = binarize(y, split_point)[0]
-    n = len(X)
-   
-    shuffle = False
-    if 'shuffle' in config:
-        shuffle = True
-        
-    total_score_arr = []
-    # k fold
-    kf = cross_validation.KFold(n=n, n_folds=k, shuffle=shuffle)
-
-    for train_index, test_index in kf:
-        X_train, X_test = X[train_index], X[test_index]
-        y_train, y_test = labels[train_index], labels[test_index]
-
-        model = svm.SVC()        
-        #model = KNeighborsClassifier(n_neighbors = 5, weights='distance')
-        model.fit(X_train, y_train)
-
-        y_predict = model.predict(X_test)
-
-        if 'figure' in config:
-            visualize_predict(y_predict, y_test) 
-
-        score = math.sqrt(mean_squared_error(y_predict, y_test))
-        print 'score: ', score
-        # total_score += score
-        total_score_arr.append(score)
-
-    score = np.mean(total_score_arr)
-    variance = np.var(total_score_arr)
-
-    print 'avg score =', score , 'var' , variance    
-
-    return total_score_arr
-
 '''
-train classification model 
-return: trained model
+visualize predict results
 '''
-def train_classcification_model(X, y, split_point, config={}):
-    labels = binarize(y, split_point)[0]
-    print X.shape
-    print labels.shape
+def visualize_predict(y_predict, y_test):
+    X = [i for i in range(0, len(y_predict))]
+    print 'X', X
 
-    # train with all data 
-    model = svm.SVC()
-    model.fit(X, labels)
-    return model       
+    fig = plt.gcf()
+    fig.set_size_inches(18.5,10.5)
+    plt.scatter(X, y_test, c='k', label='data')
+    plt.plot(X, y_predict, c='g', label='prediction')
+    plt.axis('tight')
+    plt.legend(loc='center left')
+    plt.title("Predict v.s. Real")
+    plt.show()
 
+'''   
+scale X for knn based on feature importance
 '''
-train the regression model for class0 and class1
-return: models for class0 and class1
-'''
-def train_regress_model(X_train,  y_train, split_point, config):
-    y_label = binarize(y_train, split_point)[0]
-    X_train_zero = X_train[y_label==0]
-    X_train_one = X_train[y_label == 1]
-    y_train_zero = y_train[y_label==0]
-    y_train_one = y_train[y_label==1]
-
-    
-    if 'ensemble' in config:
-        model_zero = [
-            KNeighborsRegressor(n_neighbors=22, weights='distance'),            
-            svm.NuSVR(nu=0.6, C=1e2, degree=2, gamma=0.16),
-            GradientBoostingRegressor(n_estimators=100, learning_rate=0.7, max_depth=1, random_state=0, loss='lad')
-        ]
-    else:
-        model_zero = svm.NuSVR(nu=0.33, C=9e6, degree=2, gamma=0.0092)
-    
-    for model in model_zero:
-        model.fit(X_train_zero, y_train_zero)
-    model_one = svm.NuSVR(nu=0.33, C=9e6, degree=2, gamma=0.0092)
-    # model_zero.fit(X_train_zero, y_train_zero)
-    model_one.fit(X_train_one, y_train_one)
-
-    return model_zero, model_one
-
-'''
-predict the results of test data using two trainied regression model
-return: predict result
-'''
-def predict_test_two_class(X_test, model_zero, model_one, model):
-    y_test_label = model.predict(X_test)
-    print y_test_label
-
-    X_test_zero = X_test[y_test_label==0]
-    X_test_one = X_test[y_test_label==1]
-
-    print 'X_test_zero = %s X_test_one = %s' % (X_test_zero.shape, X_test_one.shape)
-
-    y_predict_zero_all = []
-    for m in model_zero:
-        y_predict_zero_all.append(m.predict(X_test_zero))
-    y_predict_zero = np.mean(np.array(y_predict_zero_all), axis=0)
-
-
-    # y_predict_zero = model_zero.predict(X_test_zero)
-    y_predict_one = model_one.predict(X_test_one)
-
-    y_predict = np.zeros(len(X_test))
-
-    y_predict[y_test_label==0] = y_predict_zero
-    y_predict[y_test_label==1] = y_predict_one
-    return y_predict
-
-# scale X for knn based on feature importance
 def scale_X_knn(X, config):
     if 'feature_importances' not in config: return X
 
@@ -166,6 +78,25 @@ def scale_X_knn(X, config):
 
     return TX
 
+# resample towards high revenue
+def resample(X_train, y_train,  threshold = 9e6, ratio = 0.8):
+
+    X = []
+    y = []
+
+    # prob = normalize(np.absolute(scale(y_train)))[0]
+    # print prob
+
+    while len(X) < len(X_train) * (2-ratio):
+        for i in range(0, len(y_train)):
+            p = random.random()
+            if y_train[i]<9e6 and p > ratio:
+                continue
+            else:
+                X.append(X_train[i])
+                y.append(y_train[i])
+
+    return np.array(X), np.array(y)
 
 '''
 fit all the models with given data
@@ -178,9 +109,10 @@ def fit_models(models, X, y, config = {}):
         print 'fitting model %s' % type(model).__name__
 
         TX = X
-        if type(model).__name__ == 'KNeighborsRegressor':
-            TX = scale_X_knn(X, config)
-            
+        if 'weightfeature' in config:     
+            if type(model).__name__ == 'KNeighborsRegressor':
+                TX = scale_X_knn(X, config)
+                
         model.fit(TX, y)
 
 
@@ -214,23 +146,6 @@ def predict(models, X, config={}, prob=False):
     return y
 
 
-
-'''
-visualize predict results
-'''
-def visualize_predict(y_predict, y_test):
-    X = [i for i in range(0, len(y_predict))]
-    print 'X', X
-
-    fig = plt.gcf()
-    fig.set_size_inches(18.5,10.5)
-    plt.scatter(X, y_test, c='k', label='data')
-    plt.plot(X, y_predict, c='g', label='prediction')
-    plt.axis('tight')
-    plt.legend(loc='center left')
-    plt.title("Predict v.s. Real")
-    plt.show()
-
 def predict_test(X_train, y_train, X_test, config):
     
     # rebuild the model
@@ -239,26 +154,6 @@ def predict_test(X_train, y_train, X_test, config):
     y_predict = predict(models, X_test, config)
 
     return y_predict
-
-# resample towards high revenue
-def resample(X_train, y_train,  threshold = 9e6, ratio = 0.2):
-
-    X = []
-    y = []
-
-    # prob = normalize(np.absolute(scale(y_train)))[0]
-    # print prob
-
-    while len(X) < len(X_train) * 2:
-        for i in range(0, len(y_train)):
-            p = random.random()
-            if y_train[i]<8e6 and p > ratio:
-                continue
-            else:
-                X.append(X_train[i])
-                y.append(y_train[i])
-
-    return np.array(X), np.array(y)
 
 
 '''
@@ -339,10 +234,14 @@ def predict_with_one_class(config, X_train, y_train, X_test):
             KNeighborsRegressor(n_neighbors=22, weights='distance'),
             svm.NuSVR(nu=0.25, C=1.2e7, degree=2, gamma=0.0042),
             GradientBoostingRegressor(n_estimators=100, learning_rate=0.5, max_depth=1, random_state=0, loss='lad'),
+            GaussianProcess(corr='absolute_exponential')
         ]
     else:
         models = [
-            KNeighborsRegressor(n_neighbors=22, weights='distance')
+            # KNeighborsRegressor(n_neighbors=22, weights='distance')
+            
+            # corr='cubic', theta0=1e-2, thetaL=1e-4, thetaU=1e-1, random_start=100
+
         ]
 
     total_avg, total_var = kfolds(models, X_train, y_train, config)
@@ -358,37 +257,6 @@ def predict_with_one_class(config, X_train, y_train, X_test):
     y_pred = predict(models, X_test, config)    
 
     return y_pred
-
-def predict_with_two_class(config, X_train, y_train, X_test, class_split_threshold):
-    # calcualte average Root Mean Squared Eror (RMSE)
-    total_avg = 0.0     
-
-    repeat = 30 if 'repeat' in config else 1
-    total_score_arr = []
-    for i in range(repeat):
-        print '----- repeat %s ----' % i
-        score_arr = k_folds_two_class(X_train, y_train, class_split_threshold,  k=config['kfolds'], config=config)
-        total_score_arr +=  score_arr
-    
-    total_score_arr = np.array(total_score_arr)
-
-    print 'total_score_arr shape', total_score_arr.shape
-        # total_avg += score_arr
-    total_avg = np.mean(total_score_arr)
-    total_var = np.var(total_score_arr)
-    # total_avg /= repeat
-
-    print "total avg: ", total_avg, "total_var:", total_var
-
-    ################################################
-    # run test
-
-    if 'test' in config:
-        print 'X_test.shape', X_test.shape
-        classify_model = train_classcification_model(X_train, y_train, class_split_threshold, config)
-        model_zero, model_one = train_regress_model(X_train, y_train, class_split_threshold, config)        
-        y_predict = predict_test_two_class(X_test, model_zero, model_one, classify_model)
-        return y_predict
 
 def predict_with_three_classes(X_train, y_train, X_test, config):
     # 3 x 1 matrix
@@ -485,9 +353,6 @@ def predict_with_three_classes(X_train, y_train, X_test, config):
     # y_pred[high_index] = predict_two[high_index]    
 
     return y_pred
-
-
-
    
 def parse_arg(argv):
     config = {}
@@ -538,6 +403,8 @@ def parse_arg(argv):
             config['one'] = True
         if arg == '-three':
             config['three'] = True
+        if arg == '-weightfeature':
+            config['weightfeature'] = True
     return config
 
 def main():
