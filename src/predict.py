@@ -13,7 +13,6 @@ from sklearn.metrics import mean_squared_error
 from sklearn.neighbors import *
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.ensemble import *
-import matplotlib.pyplot as plt
 from sklearn.grid_search import GridSearchCV
 from sklearn.metrics import *
 from sklearn.preprocessing import *
@@ -52,6 +51,8 @@ def write_solution(filename, y):
 visualize predict results
 '''
 def visualize_predict(y_predict, y_test):
+    import matplotlib.pyplot as plt
+    
     X = [i for i in range(0, len(y_predict))]
     print 'X', X
 
@@ -234,7 +235,7 @@ def predict_with_one_class(config, X_train, y_train, X_test):
             KNeighborsRegressor(n_neighbors=22, weights='distance'),
             svm.NuSVR(nu=0.25, C=1.2e7, degree=2, gamma=0.0042),
             GradientBoostingRegressor(n_estimators=100, learning_rate=0.5, max_depth=1, random_state=0, loss='lad'),
-            GaussianProcess(corr='absolute_exponential')
+            #GaussianProcess(corr='absolute_exponential')
         ]
     else:
         models = [
