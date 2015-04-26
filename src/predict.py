@@ -19,7 +19,7 @@ from sklearn.preprocessing import *
 from sklearn.cluster import *
 from sklearn.gaussian_process import GaussianProcess
 from sklearn import mixture
-
+from sklearn.linear_model import BayesianRidge, LinearRegression
 
 '''
 read file, e.g., training file, testing file
@@ -80,7 +80,7 @@ def scale_X_knn(X, config):
     return TX
 
 # resample towards high revenue
-def resample(X_train, y_train,  threshold = 9e6, ratio = 0.8):
+def resample(X_train, y_train,  threshold = 10e6, ratio = 0.8, size = 2):
 
     X = []
     y = []
@@ -88,7 +88,7 @@ def resample(X_train, y_train,  threshold = 9e6, ratio = 0.8):
     # prob = normalize(np.absolute(scale(y_train)))[0]
     # print prob
 
-    while len(X) < len(X_train) * (2-ratio):
+    while len(X) < len(X_train) * (size-ratio):
         for i in range(0, len(y_train)):
             p = random.random()
             if y_train[i]<9e6 and p > ratio:
@@ -235,12 +235,13 @@ def predict_with_one_class(config, X_train, y_train, X_test):
             KNeighborsRegressor(n_neighbors=22, weights='distance'),
             svm.NuSVR(nu=0.25, C=1.2e7, degree=2, gamma=0.0042),
             GradientBoostingRegressor(n_estimators=100, learning_rate=0.5, max_depth=1, random_state=0, loss='lad'),
+            # BayesianRidge()
             #GaussianProcess(corr='absolute_exponential')
         ]
     else:
         models = [
             # KNeighborsRegressor(n_neighbors=22, weights='distance')
-            
+            LinearRegression()
             # corr='cubic', theta0=1e-2, thetaL=1e-4, thetaU=1e-1, random_start=100
 
         ]
@@ -459,7 +460,7 @@ def main():
 
     #resample
     if('resample' in config):
-        X_train, y_train = resample(X_train, y_train, threshold = class_split_threshold)
+        X_train, y_train = resample(X_train, y_train, threshold = class_split_threshold, size = 2)
 
     # train_classcification_model(X_train, y_train, threshold = class_split_threshold,  config = config)
     X_test = []
