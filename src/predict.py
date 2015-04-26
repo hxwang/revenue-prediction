@@ -230,32 +230,32 @@ training and prediction
 '''
 
 def predict_with_one_class(config, X_train, y_train, X_test):
+    C = np.max(y_train) - np.min(y_train)
+    print C
+
     if 'ensemble' in config:
         models = [
             KNeighborsRegressor(n_neighbors=25, weights='distance'),
             svm.NuSVR(nu=0.25, C=1.2e7, degree=2, gamma=0.0042),
-            GradientBoostingRegressor(n_estimators=100, learning_rate=1.5, max_depth=1, random_state=0, loss='lad'),
+            #GradientBoostingRegressor(n_estimators=100, learning_rate=1.5, max_depth=1, random_state=0, loss='lad'),
+            xgb.XGBRegressor(max_depth=3, n_estimators=100, learning_rate=0.02, subsample = 0.9, base_score=4.4e6),
             #xgb.XGBRegressor(max_depth=6, learning_rate=0.05)
             # BayesianRidge()
             #GaussianProcess(corr='absolute_exponential')
-        ]
-
-        # models1 = [ 
-        #     KNeighborsRegressor(n_neighbors=20, weights='distance'), 
-        #     svm.NuSVR(nu=0.2, C=2e6, degree=2, gamma=0.2), 
-        #     GradientBoostingRegressor(n_estimators=100, learning_rate=0.05, max_depth=1, random_state=0, loss='lad'), 
-        #     ]
+        ]    
     else:
         models = [
             # KNeighborsRegressor(n_neighbors=22, weights='distance')
             # LinearRegression()
             # corr='cubic', theta0=1e-2, thetaL=1e-4, thetaU=1e-1, random_start=100
-            GradientBoostingRegressor(n_estimators=50, learning_rate=0.01, max_depth=1, random_state=0, loss='lad'),
+            #GradientBoostingRegressor(n_estimators=50, learning_rate=0.01, max_depth=1, random_state=0, loss='lad'),
+
+            svm.SVR(C=C, epsilon=0.0001, degree=2, gamma=0.02),
         ]
 
         if 'xgb' in config:            
             models = [
-                xgb.XGBRegressor(max_depth=9, n_estimators=3000, learning_rate=0.01, subsample = 0.9, base_score=4.3e6)
+                xgb.XGBRegressor(max_depth=3, n_estimators=100, learning_rate=0.02, subsample = 0.9, base_score=4.4e6)
             ]
 
     total_avg, total_var = kfolds(models, X_train, y_train, config)
@@ -421,17 +421,23 @@ def parse_arg(argv):
             config['three'] = True
         if arg == '-weightfeature':
             config['weightfeature'] = True
+        if arg == '-raw':
+            config['raw'] = True
     return config
 
 def main():
     config = parse_arg(sys.argv)
 
-    train_filename = '../data/train_cleaned.csv'
-    test_filename = '../data/test_cleaned.csv'
+    train_filename = '../data/train_scaled.csv'
+    test_filename = '../data/test_scaled.csv'
 
     if 'pca' in config:
         train_filename = '../data/pca_train.csv'
         test_filename = '../data/pca_test.csv'
+
+    if 'raw' in config:
+        train_filename = '../data/train_raw.csv'
+        test_filename = '../data/train_raw.csv'
 
     # read training data and convert to numpy array
     train_data = np.array(read_csv(train_filename), dtype=float)

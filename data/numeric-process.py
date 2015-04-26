@@ -146,6 +146,11 @@ if __name__ == '__main__':
     print 'city group = %s ' % city_groups
     print 'types = %s ' % types
 
+    train_header = read_csv_header(train)
+    test_header = read_csv_header(test)
+    train_header = train_header[1:len(train_header)]
+    test_header = test_header[1:len(test_header)]
+
     # tranfrom data to numeric types
     rows_train = transform_data(rows_train, city_names, city_groups, types)
     rows_test = transform_data(rows_test, city_names, city_groups, types)
@@ -154,8 +159,10 @@ if __name__ == '__main__':
     # convert to float type
     rows_train = np.array(rows_train, dtype = float)
     rows_test = np.array(rows_test, dtype = float)
-    # print 'rows_test.shapre', rows_test.shape
+    # print 'rows_test.shapre', rows_test.shape    
 
+    write_csv('train_raw.csv', rows_train, train_header, True)
+    write_csv('test_raw.csv', rows_test, test_header, True)
 
     # merge train and test in order to do processing together
     X_train = rows_train[:, 0:len(rows_train[0])-1]
@@ -177,11 +184,8 @@ if __name__ == '__main__':
     # put revenue back
     rows_train = np.c_[X_train, y_train]
 
-    train_header = read_csv_header(train)
-    test_header = read_csv_header(test)
-    train_header = train_header[1:len(train_header)]
-    test_header = test_header[1:len(test_header)]
+    
 
-    write_csv('train_cleaned.csv', rows_train, train_header, True)
-    write_csv('test_cleaned.csv', X_test, test_header, True)
+    write_csv('train_scaled.csv', rows_train, train_header, True)
+    write_csv('test_scaled.csv', X_test, test_header, True)
 
