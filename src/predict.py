@@ -402,6 +402,8 @@ def parse_arg(argv):
             config['resample'] = True
         if arg == '-one':
             config['one'] = True
+        if arg == '-xgb']:
+            config['xgh'] = True
         if arg == '-three':
             config['three'] = True
         if arg == '-weightfeature':
