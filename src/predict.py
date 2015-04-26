@@ -20,6 +20,7 @@ from sklearn.cluster import *
 from sklearn.gaussian_process import GaussianProcess
 from sklearn import mixture
 from sklearn.linear_model import BayesianRidge, LinearRegression
+import xgboost as xgb
 
 '''
 read file, e.g., training file, testing file
@@ -229,22 +230,33 @@ training and prediction
 '''
 
 def predict_with_one_class(config, X_train, y_train, X_test):
-    
     if 'ensemble' in config:
         models = [
-            KNeighborsRegressor(n_neighbors=22, weights='distance'),
+            KNeighborsRegressor(n_neighbors=25, weights='distance'),
             svm.NuSVR(nu=0.25, C=1.2e7, degree=2, gamma=0.0042),
-            GradientBoostingRegressor(n_estimators=100, learning_rate=0.5, max_depth=1, random_state=0, loss='lad'),
+            GradientBoostingRegressor(n_estimators=100, learning_rate=1.5, max_depth=1, random_state=0, loss='lad'),
+            #xgb.XGBRegressor(max_depth=6, learning_rate=0.05)
             # BayesianRidge()
             #GaussianProcess(corr='absolute_exponential')
         ]
+
+        # models1 = [ 
+        #     KNeighborsRegressor(n_neighbors=20, weights='distance'), 
+        #     svm.NuSVR(nu=0.2, C=2e6, degree=2, gamma=0.2), 
+        #     GradientBoostingRegressor(n_estimators=100, learning_rate=0.05, max_depth=1, random_state=0, loss='lad'), 
+        #     ]
     else:
         models = [
             # KNeighborsRegressor(n_neighbors=22, weights='distance')
-            LinearRegression()
+            # LinearRegression()
             # corr='cubic', theta0=1e-2, thetaL=1e-4, thetaU=1e-1, random_start=100
-
+            GradientBoostingRegressor(n_estimators=50, learning_rate=0.01, max_depth=1, random_state=0, loss='lad'),
         ]
+
+        if 'xgb' in config:            
+            models = [
+                xgb.XGBRegressor(max_depth=9, n_estimators=3000, learning_rate=0.01, subsample = 0.9, base_score=4.3e6)
+            ]
 
     total_avg, total_var = kfolds(models, X_train, y_train, config)
 
@@ -403,8 +415,8 @@ def parse_arg(argv):
             config['resample'] = True
         if arg == '-one':
             config['one'] = True
-        if arg == '-xgb']:
-            config['xgh'] = True
+        if arg == '-xgb':
+            config['xgb'] = True
         if arg == '-three':
             config['three'] = True
         if arg == '-weightfeature':
@@ -449,11 +461,11 @@ def main():
     y_train = train_data[:, len(train_data[0])-1]
 
     # feature selection
-    rfc = RandomForestClassifier()
-    rfc.fit(X_train, y_train)
-    feature_importances = np.square(np.array(rfc.feature_importances_))
-    config['feature_importances'] = feature_importances
-    print feature_importances
+    # rfc = RandomForestClassifier()
+    # rfc.fit(X_train, y_train)
+    # feature_importances = np.square(np.array(rfc.feature_importances_))
+    # config['feature_importances'] = feature_importances
+    # print feature_importances
 
     # settings
     class_split_threshold = 17e6
@@ -485,7 +497,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-  
-
-
