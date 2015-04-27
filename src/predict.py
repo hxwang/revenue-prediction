@@ -234,11 +234,11 @@ def predict_with_one_class(config, X_train, y_train, X_test):
     print C
 
     if 'ensemble' in config:
-        models = [
-            KNeighborsRegressor(n_neighbors=25, weights='distance'),
-            svm.NuSVR(nu=0.25, C=1.2e7, degree=2, gamma=0.0042),
-            #GradientBoostingRegressor(n_estimators=100, learning_rate=1.5, max_depth=1, random_state=0, loss='lad'),
-            xgb.XGBRegressor(max_depth=3, n_estimators=100, learning_rate=0.02, subsample = 0.9, base_score=4.4e6),
+        models = [        
+            KNeighborsRegressor(n_neighbors=22, weights='distance'),
+            svm.NuSVR(nu=0.35, C=C, degree=2, gamma=0.01),
+            GradientBoostingRegressor(n_estimators=100, learning_rate=1.0, max_depth=1, random_state=0, loss='lad'),    
+            #xgb.XGBRegressor(max_depth=3, n_estimators=100, learning_rate=0.02, subsample = 0.9, base_score=4.4e6),
             #xgb.XGBRegressor(max_depth=6, learning_rate=0.05)
             # BayesianRidge()
             #GaussianProcess(corr='absolute_exponential')
@@ -250,7 +250,10 @@ def predict_with_one_class(config, X_train, y_train, X_test):
             # corr='cubic', theta0=1e-2, thetaL=1e-4, thetaU=1e-1, random_start=100
             #GradientBoostingRegressor(n_estimators=50, learning_rate=0.01, max_depth=1, random_state=0, loss='lad'),
 
-            svm.SVR(C=C, epsilon=0.0001, degree=2, gamma=0.02),
+            #svm.SVR(C=C, epsilon=0.0001, degree=2, gamma=0.02),
+
+            GradientBoostingRegressor(n_estimators=1000, learning_rate=0.5, max_depth=3, random_state=0, loss='lad'),
+
         ]
 
         if 'xgb' in config:            

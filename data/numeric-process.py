@@ -123,7 +123,9 @@ def transform_data(rows, city_names, city_groups, types):
 
     for row in rows:        
         row[1] = datetime.datetime.strptime(row[1], '%m/%d/%Y').date()
-        row[1] = int(time.mktime(row[1].timetuple()))    
+
+        # days opened...
+        row[1] = (time.mktime((2014,2,1,0,0,0,0,0,0)) - time.mktime(row[1].timetuple())) /  24 / 3600
         # transform using dictionary city_names, city_groups, types
         row[2] = city_names[row[2]]
         row[3] = city_groups[row[3]]
