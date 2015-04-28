@@ -140,15 +140,19 @@ def predict(models, X, config={}, prob=False, weights=None):
         ys.append(pred)
 
     # return mean prediction
-    weights = [0.3; 0.3; 0.4]
-    if(weights!=None):
-        ys = np.multiply(ys, weights)
-    y = np.mean(np.array(ys), axis=0)
+    ys = np.array(ys).T
+    
+    weights = np.matrix([0.35, 0.35, 0.3]).T
+    if(weights != None):
+        y = np.dot(ys, weights)
+        print y.shape
+    else:
+        y = np.mean(ys, axis=0)
 
     if 'logy' in config:
         y = np.exp(y)
 
-    return y
+    return np.squeeze(np.asarray(y))
 
 
 def predict_test(X_train, y_train, X_test, config):
