@@ -142,7 +142,7 @@ def predict(models, X, config={}, prob=False, weights=None):
     # return mean prediction
     ys = np.array(ys).T
     
-    weights = np.matrix([0.35, 0.35, 0.3]).T
+    weights = np.matrix([0.3, 0.45, 0.25]).T
     if(weights != None):
         y = np.dot(ys, weights)
         print y.shape
