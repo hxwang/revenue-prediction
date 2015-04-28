@@ -20,7 +20,7 @@ from sklearn.cluster import *
 from sklearn.gaussian_process import GaussianProcess
 from sklearn import mixture
 from sklearn.linear_model import BayesianRidge, LinearRegression
-import xgboost as xgb
+
 
 '''
 read file, e.g., training file, testing file
@@ -125,7 +125,7 @@ X: record to predict, n*m matrix
 prob: whether predict probability
 return: predicted (mean) revenue, n*1 matrix
 '''
-def predict(models, X, config={}, prob=False):
+def predict(models, X, config={}, prob=False, weights=None):
 
     ys = []
 
@@ -140,6 +140,9 @@ def predict(models, X, config={}, prob=False):
         ys.append(pred)
 
     # return mean prediction
+    weights = [0.3; 0.3; 0.4]
+    if(weights!=None):
+        ys = np.multiply(ys, weights)
     y = np.mean(np.array(ys), axis=0)
 
     if 'logy' in config:
@@ -235,11 +238,12 @@ def predict_with_one_class(config, X_train, y_train, X_test):
 
     if 'ensemble' in config:
         models = [        
-            # KNeighborsRegressor(n_neighbors=22, weights='distance'),
-            # svm.NuSVR(nu=0.35, C=C, degree=2, gamma=0.01),
-            # GradientBoostingRegressor(n_estimators=100, learning_rate=1.0, max_depth=1, random_state=0, loss='lad'),    
+            KNeighborsRegressor(n_neighbors=22, weights='distance'),
+            svm.NuSVR(nu=0.35, C=C, degree=2, gamma=0.01),
+            #svm.SVR(C=C, epsilon=0.0001, degree=2, gamma=0.02),
+            GradientBoostingRegressor(n_estimators=100, learning_rate=1.0, max_depth=1, random_state=0, loss='lad'),    
 
-            KNeighborsRegressor(n_neighbors=22, weights='distance'), svm.NuSVR(nu=0.35, C=C, degree=2, gamma=0.01), #GradientBoostingRegressor(n_estimators=100, learning_rate=0.7, max_depth=1, random_state=0, loss='lad'), GradientBoostingRegressor(n_estimators=1000, learning_rate=0.5, max_depth=3, random_state=0, loss='lad'),
+            #KNeighborsRegressor(n_neighbors=22, weights='distance'), svm.NuSVR(nu=0.35, C=C, degree=2, gamma=0.01), #GradientBoostingRegressor(n_estimators=100, learning_rate=0.7, max_depth=1, random_state=0, loss='lad'), GradientBoostingRegressor(n_estimators=1000, learning_rate=0.5, max_depth=3, random_state=0, loss='lad'),
 
             #xgb.XGBRegressor(max_depth=3, n_estimators=100, learning_rate=0.02, subsample = 0.9, base_score=4.4e6),
             #xgb.XGBRegressor(max_depth=6, learning_rate=0.05)
@@ -253,9 +257,9 @@ def predict_with_one_class(config, X_train, y_train, X_test):
             # corr='cubic', theta0=1e-2, thetaL=1e-4, thetaU=1e-1, random_start=100
             #GradientBoostingRegressor(n_estimators=50, learning_rate=0.01, max_depth=1, random_state=0, loss='lad'),
 
-            #svm.SVR(C=C, epsilon=0.0001, degree=2, gamma=0.02),
+            svm.SVR(C=C, epsilon=0.0001, degree=2, gamma=0.02),
 
-            GradientBoostingRegressor(n_estimators=1000, learning_rate=0.5, max_depth=3, random_state=0, loss='lad'),
+            # GradientBoostingRegressor(n_estimators=1000, learning_rate=0.5, max_depth=3, random_state=0, loss='lad'),
 
         ]
 
