@@ -1,7 +1,8 @@
+*.pyc
+.DS_Store
+
 src/solution.csv
 src/solution.zip
-
-.DS_Store
 
 data/test_cleaned.csv
 data/train_cleaned.csv
@@ -9,4 +10,9 @@ data/test_pca.csv
 data/train_pca.csv
 data/submission/data/
 
-*.pyc
+report/*.aux
+report/*.log
+report/*.out
+report/report.pdf
+report/*.synctex.gz
+report/figs/*converted-to.pdf

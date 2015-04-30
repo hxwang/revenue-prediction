@@ -142,12 +142,14 @@ def predict(models, X, config={}, prob=False, weights=None):
     # return mean prediction
     ys = np.array(ys).T
     
-    weights = np.matrix([0.25, 0.3, 0.45]).T
+    if len(models)==3 and not weights:
+        weights = np.matrix([0.25, 0.3, 0.45]).T
+
     if(weights != None):
         y = np.dot(ys, weights)
         print y.shape
     else:
-        y = np.mean(ys, axis=0)
+        y = np.mean(ys.T, axis=0)
 
     if 'logy' in config:
         y = np.exp(y)
@@ -266,8 +268,9 @@ def predict_with_one_class(config, X_train, y_train, X_test):
         ]
 
         if 'xgb' in config:            
+            import xgboost as xgb
             models = [
-                xgb.XGBRegressor(max_depth=3, n_estimators=100, learning_rate=0.02, subsample = 0.9, base_score=4.4e6)
+                xgb.XGBRegressor(max_depth=3, n_estimators=1000, learning_rate=0.01, subsample = 0.9, min_child_weight=5.0)
             ]
 
     total_avg, total_var = kfolds(models, X_train, y_train, config)

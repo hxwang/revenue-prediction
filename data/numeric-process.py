@@ -144,9 +144,9 @@ if __name__ == '__main__':
     city_groups = scan_city_group(rows)
     types = scan_type(rows)
 
-    print 'citys = %s ' % city_names
-    print 'city group = %s ' % city_groups
-    print 'types = %s ' % types
+    print 'citys = %s, %s ' % (len(city_names), city_names)
+    print 'city group = %s, %s ' % (len(city_groups), city_groups)
+    print 'types = %s, %s ' % (len(types), types)
 
     train_header = read_csv_header(train)
     test_header = read_csv_header(test)
