@@ -58,7 +58,7 @@ The goal of this project is to predict the revenues of restaurants by given demo
 
 %\subsection{}
 \section{Dataset}
-We collect the data from Kaggle, a community of data scientists which also hosts competitions. 
+We collect the data from Kaggle, a community of data scientists which also hosts data science competitions. 
 Restaurant revenue prediction is one of the active competition.
 There are 137 restaurants in the training set and 100000 in the test set which is an unbalanced dataset. 
 For each record, 41 features are given detailed in \tabref{tab:features}.
@@ -93,9 +93,27 @@ Only provided in training set.
 \label{tab:features}
 \end{table}%
 
+\subsection{Evaluation}
+\subsubsection{What to submit?}
+For each records in the test set, output the ID of that record followed by the predicted revenue.
+
+\subsubsection{Evaluation Metric}
+Submissions are scored on the root mean squared error. 
+RMSE is very common and is a suitable general-purpose error metric. 
+Compared to the Mean Absolute Error, RMSE punishes large errors:
+\begin{equation*}
+RMSE = \sqrt{\frac{1}{n} \sum_{i=1}^{n} (y_i - \hat{y}_i)^2 }, 
+\end{equation*}
+where $\hat{y}_i$ is the predicted revenue and $y_i$ is the ground truth.
+
+\subsubsection{Public Board V.S. Private Board}
+For an active competition, each submission will be evaluated only on the 30\% of test set and scores will be published on the public board.
+Once the competition is over, the final score is evaluated on the rest 70\% of the test set which will be published on the private board. 
+Who win the public board may not win the private board since his model may be overfitted the public board's test data.
+   
 \subsection{Data Preparation}
 \subsubsection{Revenue at a Glance}
-In \figref{fig:revenue} we show the histogram of the revenues, from which we can see majority of the revenues are around $5 \times 10^6$, 
+In \figref{fig:revenue} we show the histogram of the revenues in the training set, from which we can see that majority of the revenues are around $5 \times 10^6$, 
 however, there are few ``outliers'' which makes both training and prediction hard especially under RMSE evaluation metric.
 
 \begin{figure}[htbp] %  figure placement: here, top, bottom, or page
@@ -113,10 +131,44 @@ There are total 63 cities in the entire dataset, too many new features will be a
 the there is no correlation between these two features and revenue.
 Thus we decided to drop both {\bf City} and {\bf Type} features.
 
-\subsubsection{Feature Normalization}
+\todo{Talk about PCA}
+\todo{try pca on dropped data}
 
-\section{Methodology}
+\subsubsection{Feature Normalization}
+Since features have different scale and ranges, feature normalization is a necessary preprocessing step if we would like to compute the distance between two instances which is used for finding nearest neighbors. 
+For example, one feature ranges from 1 to 1000 will dominant the distance computation if all other features are range from 0 to 1.
+We choose to use standardization the entire dataset (stack training set and test set together) that each feature is transformed to zero mean and unit variance.
+
 \section{Results and Discussion}
+
+\subsection{Toolbox}
+We use Scikit-Learn which is a open source python library built on NumPy, SciPy, and matplotlib. 
+It provides simple and efficient tools for data mining and data analysis range from Classification, Regression, Clustering, Dimensionality reduction, Model selection and Preprocessing.
+
+\subsection{Single Model Selection}
+We start from single model, model selection is done based on the average error of a 3 folds cross-validation.
+
+\todo{Show 5+ models and there 'best' cv scores as well as LB scores}
+
+\subsection{Ensamble}
+Model ensemble is widely adopted especially in Kaggle competitions in the cases that scores can not be improved any further by using a single model.
+We ensemble the top 3 models by weighted average which means the final prediction is a linear combination of the predictions from 3 models.
+Parameters and weights are further tuned based the cross-validation errors.
+\todo{Show the table of model, weights, parameters.}
+
+\subsection{Unbalanced Dataset}
+As mentioned before, there are only 137 records in training set while test set contains 1000000 records.
+The unbalanced dataset makes the models extremely easy to be overfitted and cross-validation still can give us a good estimation of the performance on unseen records.
+As shown in \figref{fig:cv_lb_error}, the average RMSE of cross-validation has no strong correlation with that on public board.
+
+\begin{figure}[htbp] %  figure placement: here, top, bottom, or page
+   \centering
+   \includegraphics[width=5in]{figs/scores.eps} 
+   \caption{RMSE of each submission.}
+   \label{fig:cv_lb_error}
+\end{figure}
+
+
 \section{Conclusion}
 
 

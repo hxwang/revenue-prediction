@@ -6,6 +6,8 @@ s = load('scores.txt');
 s = s / 1e6;
 scatter(s(:,1), s(:,2), 30, 'filled');
 
+grid on;
+
 title('RMSE / 10^6 ', 'FontSize', 16, 'FontWeight', 'bold', 'FontName', 'Helvetica');
 xlabel('Cross-Validation', 'FontSize', 16, 'FontName', 'Helvetica');
 ylabel('Public Board', 'FontSize', 16, 'FontName', 'Helvetica');
