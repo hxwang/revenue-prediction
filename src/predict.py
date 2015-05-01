@@ -20,7 +20,7 @@ from sklearn.preprocessing import *
 from sklearn.cluster import *
 from sklearn.gaussian_process import GaussianProcess
 from sklearn import mixture
-
+from sklearn.naive_bayes import GaussianNB
 
 '''
 read file, e.g., training file, testing file
@@ -308,9 +308,10 @@ def predict_with_three_classes(X_train, y_train, X_test, config):
     #     print labels[i], clustering_results[i]
 
     c_models = [
-        KNeighborsClassifier(n_neighbors=5, weights='distance'),        
-        BaggingClassifier(n_estimators=50),
-        GradientBoostingClassifier(n_estimators = 50, learning_rate = 0.05)
+        # KNeighborsClassifier(n_neighbors=5, weights='distance'),        
+        # BaggingClassifier(n_estimators=50),
+        # GradientBoostingClassifier(n_estimators = 50, learning_rate = 0.05),
+        GaussianNB()
         # svm.SVC(probability=True, class_weight=balance_weights, C = 50, kernel='rbf')
         # RandomForestClassifier(n_estimators = 10, class_weight  = 'subsample')
         ]
