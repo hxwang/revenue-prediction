@@ -6,7 +6,7 @@ import time
 import datetime
 from sklearn.decomposition import PCA
 import numpy as np
-import read_data.py as rd
+import read_data as rd
 
 
 

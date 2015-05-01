@@ -1,12 +1,5 @@
 import csv
 import sys
-import math
-import numpy as np 
-from sklearn import svm
-import preproccess as process
-from sklearn import decomposition
-
-
 
 def read_csv_all(filename):
     rows = []
