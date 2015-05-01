@@ -144,7 +144,7 @@ def predict(models, X, config={}, prob=False, weights=None):
     ys = np.array(ys).T
     
     if len(models)==3 and not weights:
-        weights = np.matrix([0.25, 0.3, 0.45]).T
+        weights = np.matrix([0.2, 0.3, 0.5]).T
 
     if weights is not None:
         y = np.dot(ys, weights)
@@ -254,9 +254,19 @@ def predict_with_one_class(config, X_train, y_train, X_test):
             #xgb.XGBRegressor(max_depth=6, learning_rate=0.05)
             # BayesianRidge()
             #GaussianProcess(corr='absolute_exponential')
-        ]    
+        ]
+
+        if 'low' in config:
+            models = [
+                KNeighborsRegressor(n_neighbors=21, weights='distance'),
+                svm.NuSVR(nu=0.38, C=C, gamma=0.004),
+                GradientBoostingRegressor(n_estimators=100, learning_rate=0.1, max_depth=3, random_state=0, loss='lad', subsample=0.95),
+            ]    
     else:
         models = [
+            KNeighborsRegressor(n_neighbors=21, weights='distance'),
+            svm.NuSVR(nu=0.38, C=C, gamma=0.004),
+            GradientBoostingRegressor(n_estimators=100, learning_rate=0.1, max_depth=3, random_state=0, loss='lad', subsample=0.95),
 
             # KNeighborsRegressor(n_neighbors=25, weights='distance'),
             # svm.NuSVR(nu=0.35, C=C, gamma=0.01),
@@ -390,8 +400,8 @@ def parse_arg(argv):
     config = {}
     config['date'] = True
     config['city_group'] = True
-    config['city_name'] = True
-    config['type'] = True    
+    config['city_name'] = False
+    config['type'] = False    
     config['kfolds'] = 5
     config['one'] = True
 
@@ -444,6 +454,8 @@ def parse_arg(argv):
             config['raw'] = True
         if arg == '-i':
             config['imputation'] = True
+        if arg == '-low':
+            config['low'] = True
     return config
 
 def main():
@@ -484,13 +496,17 @@ def main():
         if 'type' in config: cols = cols + [3]
 
         cols = cols + [i for i in range(4, len(train_data[0])-1)]
-    
-    print len(cols)
-    
+
     
     # split training data to (record) and (predicted value)
     X_train = train_data[:, cols]
     y_train = train_data[:, len(train_data[0])-1]
+
+    # only use low values
+    if 'low' in config:
+        idx = y_train < 9e6
+        X_train, y_train = X_train[idx], y_train[idx]
+
 
     # feature selection
     # rfc = RandomForestClassifier()

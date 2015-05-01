@@ -5,6 +5,7 @@ import sys
 import time
 import datetime
 from sklearn.preprocessing import *
+from sklearn.decomposition import PCA
 import numpy as np
 
 
@@ -139,8 +140,8 @@ def imputation(X_all, n_train, y_train, train_header, test_header):
 def parse_arg(args):
     config = {}
     for arg in args:
-        if arg == '-i': config['-i']=True
-        if arg == '-s': config['-s']=True
+        if arg[0] == '-': config[arg]=True
+
     return config
 
 
@@ -207,8 +208,8 @@ if '-s' in config:
     write_csv('train_scaled.csv', Xy_train, train_header, False)
     write_csv('test_scaled.csv', X_test, test_header, False)
 
-if '-i' in config:
-    print 'Imputating...'
+if '-i' in config or '-p' in config:
+    
     # 'open date' and 'city groups' and 'p1-p37'
     cols = [0, 2] + [i for i in range(4, 4+37)]
 
@@ -216,7 +217,25 @@ if '-i' in config:
 
     # drop off other feaatures
     X_all = X_all[:, cols]
+    # X_train = X_train[:, cols]
+    # X_test = X_test[:, cols]
 
+if '-p' in config:
+    print 'PCA...'
+
+    pca = PCA(n_components=15)
+
+    print X_train.shape
+    
+    X_all = scale(X_all)
+    
+    X_all = pca.fit_transform(X_all)
+    print 'variance = ', pca.explained_variance_ratio_
+    print 'total variance = ', np.sum(pca.explained_variance_ratio_)
+
+if '-i' in config: 
+
+    print 'Imputating...'
     # make city groups has value 1 and 2 instead 0 and 1...
     X_all[:,1] += 1
 
