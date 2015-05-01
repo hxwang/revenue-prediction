@@ -13,20 +13,21 @@ from sklearn.metrics import mean_squared_error
 from sklearn.neighbors import *
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.ensemble import *
-import matplotlib.pyplot as plt
 from sklearn.grid_search import GridSearchCV
 from sklearn.metrics import *
 from sklearn.preprocessing import *
 from sklearn.cluster import *
 from sklearn.gaussian_process import GaussianProcess
 from sklearn import mixture
-from sklearn.naive_bayes import GaussianNB
+from sklearn.linear_model import BayesianRidge, LinearRegression
+
 
 '''
 read file, e.g., training file, testing file
 return: n*m matrix
 '''
-def read_csv(filename):    
+def read_csv(filename):
+    print 'reading csv from %s' % filename
     rows = []
     with open(filename, 'r') as f:
         reader = csv.reader(f, delimiter=',')
@@ -52,6 +53,8 @@ def write_solution(filename, y):
 visualize predict results
 '''
 def visualize_predict(y_predict, y_test):
+    import matplotlib.pyplot as plt
+    
     X = [i for i in range(0, len(y_predict))]
     print 'X', X
 
@@ -79,7 +82,7 @@ def scale_X_knn(X, config):
     return TX
 
 # resample towards high revenue
-def resample(X_train, y_train,  threshold = 9e6, ratio = 0.8):
+def resample(X_train, y_train,  threshold = 10e6, ratio = 0.8, size = 2):
 
     X = []
     y = []
@@ -87,7 +90,7 @@ def resample(X_train, y_train,  threshold = 9e6, ratio = 0.8):
     # prob = normalize(np.absolute(scale(y_train)))[0]
     # print prob
 
-    while len(X) < len(X_train) * (2-ratio):
+    while len(X) < len(X_train) * (size-ratio):
         for i in range(0, len(y_train)):
             p = random.random()
             if y_train[i]<9e6 and p > ratio:
@@ -123,7 +126,7 @@ X: record to predict, n*m matrix
 prob: whether predict probability
 return: predicted (mean) revenue, n*1 matrix
 '''
-def predict(models, X, config={}, prob=False):
+def predict(models, X, config={}, prob=False, weights=None):
 
     ys = []
 
@@ -138,12 +141,21 @@ def predict(models, X, config={}, prob=False):
         ys.append(pred)
 
     # return mean prediction
-    y = np.mean(np.array(ys), axis=0)
+    ys = np.array(ys).T
+    
+    if len(models)==3 and not weights:
+        weights = np.matrix([0.25, 0.3, 0.45]).T
+
+    if weights is not None:
+        y = np.dot(ys, weights)
+        print y.shape
+    else:
+        y = np.mean(ys.T, axis=0)
 
     if 'logy' in config:
         y = np.exp(y)
 
-    return y
+    return np.squeeze(np.asarray(y))
 
 
 def predict_test(X_train, y_train, X_test, config):
@@ -228,21 +240,41 @@ training and prediction
 '''
 
 def predict_with_one_class(config, X_train, y_train, X_test):
-    
+    C = np.max(y_train) - np.min(y_train)
+    print C
+
     if 'ensemble' in config:
-        models = [
+        models = [        
             KNeighborsRegressor(n_neighbors=22, weights='distance'),
-            svm.NuSVR(nu=0.25, C=1.2e7, degree=2, gamma=0.0042),
-            GradientBoostingRegressor(n_estimators=100, learning_rate=0.5, max_depth=1, random_state=0, loss='lad'),
-            GaussianProcess(corr='absolute_exponential')
-        ]
+            svm.NuSVR(nu=0.25, C=C, degree=2, gamma=0.01),
+            GradientBoostingRegressor(n_estimators=100, learning_rate=1.0, max_depth=1, random_state=0, loss='lad'),
+
+            # KNeighborsRegressor(n_neighbors=22, weights='distance'), svm.NuSVR(nu=0.35, C=C, degree=2, gamma=0.01), #GradientBoostingRegressor(n_estimators=100, learning_rate=0.7, max_depth=1, random_state=0, loss='lad'), GradientBoostingRegressor(n_estimators=1000, learning_rate=0.5, max_depth=3, random_state=0, loss='lad'),
+            #xgb.XGBRegressor(max_depth=3, n_estimators=100, learning_rate=0.02, subsample = 0.9, base_score=4.4e6),
+            #xgb.XGBRegressor(max_depth=6, learning_rate=0.05)
+            # BayesianRidge()
+            #GaussianProcess(corr='absolute_exponential')
+        ]    
     else:
         models = [
-            # KNeighborsRegressor(n_neighbors=22, weights='distance')
-            
-            # corr='cubic', theta0=1e-2, thetaL=1e-4, thetaU=1e-1, random_start=100
+
+            # KNeighborsRegressor(n_neighbors=25, weights='distance'),
+            # svm.NuSVR(nu=0.35, C=C, gamma=0.01),
+            # GradientBoostingRegressor(n_estimators=100, learning_rate=0.1, max_depth=3, random_state=0, loss='lad'),
+
+            #GradientBoostingRegressor(n_estimators=50, learning_rate=0.01, max_depth=1, random_state=0, loss='lad'),
+
+            #svm.SVR(C=C, epsilon=0.0001, degree=2, gamma=0.02),
+
+            # GradientBoostingRegressor(n_estimators=1000, learning_rate=0.5, max_depth=3, random_state=0, loss='lad'),
 
         ]
+
+        if 'xgb' in config:            
+            import xgboost as xgb
+            models = [
+                xgb.XGBRegressor(max_depth=3, n_estimators=1000, learning_rate=0.01, subsample = 0.9, min_child_weight=5.0)
+            ]
 
     total_avg, total_var = kfolds(models, X_train, y_train, config)
 
@@ -308,10 +340,9 @@ def predict_with_three_classes(X_train, y_train, X_test, config):
     #     print labels[i], clustering_results[i]
 
     c_models = [
-        # KNeighborsClassifier(n_neighbors=5, weights='distance'),        
-        # BaggingClassifier(n_estimators=50),
-        # GradientBoostingClassifier(n_estimators = 50, learning_rate = 0.05),
-        GaussianNB()
+        KNeighborsClassifier(n_neighbors=5, weights='distance'),        
+        BaggingClassifier(n_estimators=50),
+        GradientBoostingClassifier(n_estimators = 50, learning_rate = 0.05)
         # svm.SVC(probability=True, class_weight=balance_weights, C = 50, kernel='rbf')
         # RandomForestClassifier(n_estimators = 10, class_weight  = 'subsample')
         ]
@@ -362,6 +393,7 @@ def parse_arg(argv):
     config['city_name'] = True
     config['type'] = True    
     config['kfolds'] = 5
+    config['one'] = True
 
     for i in range(0, len(argv)):
         arg = argv[i]
@@ -402,29 +434,44 @@ def parse_arg(argv):
             config['resample'] = True
         if arg == '-one':
             config['one'] = True
+        if arg == '-xgb':
+            config['xgb'] = True
         if arg == '-three':
             config['three'] = True
         if arg == '-weightfeature':
             config['weightfeature'] = True
+        if arg == '-raw':
+            config['raw'] = True
+        if arg == '-i':
+            config['imputation'] = True
     return config
 
 def main():
     config = parse_arg(sys.argv)
 
-    train_filename = '../data/train_cleaned.csv'
-    test_filename = '../data/test_cleaned.csv'
+    train_filename = '../data/train_scaled.csv'
+    test_filename = '../data/test_scaled.csv'
 
     if 'pca' in config:
         train_filename = '../data/pca_train.csv'
         test_filename = '../data/pca_test.csv'
 
+    if 'raw' in config:
+        train_filename = '../data/train_raw.csv'
+        test_filename = '../data/train_raw.csv'    
+
+    if 'imputation' in config:
+        train_filename = '../data/train_i.csv'
+        test_filename = '../data/test_i.csv'
+
     # read training data and convert to numpy array
-    train_data = np.array(read_csv(train_filename), dtype=float)
-    
-   
+    train_data = np.array(read_csv(train_filename), dtype=float)   
 
     if 'pca' in config:
         # if use pca, use all features
+        cols = [i for i in range(0, len(train_data[0])-1)]
+    elif 'imputation' in config:
+        # if use imputation, use all features
         cols = [i for i in range(0, len(train_data[0])-1)]
     else:        
 
@@ -446,18 +493,18 @@ def main():
     y_train = train_data[:, len(train_data[0])-1]
 
     # feature selection
-    rfc = RandomForestClassifier()
-    rfc.fit(X_train, y_train)
-    feature_importances = np.square(np.array(rfc.feature_importances_))
-    config['feature_importances'] = feature_importances
-    print feature_importances
+    # rfc = RandomForestClassifier()
+    # rfc.fit(X_train, y_train)
+    # feature_importances = np.square(np.array(rfc.feature_importances_))
+    # config['feature_importances'] = feature_importances
+    # print feature_importances
 
     # settings
     class_split_threshold = 17e6
 
     #resample
     if('resample' in config):
-        X_train, y_train = resample(X_train, y_train, threshold = class_split_threshold)
+        X_train, y_train = resample(X_train, y_train, threshold = class_split_threshold, size = 2)
 
     # train_classcification_model(X_train, y_train, threshold = class_split_threshold,  config = config)
     X_test = []
@@ -482,7 +529,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-  
-
-

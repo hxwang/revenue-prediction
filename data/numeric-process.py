@@ -123,7 +123,9 @@ def transform_data(rows, city_names, city_groups, types):
 
     for row in rows:        
         row[1] = datetime.datetime.strptime(row[1], '%m/%d/%Y').date()
-        row[1] = int(time.mktime(row[1].timetuple()))    
+
+        # days opened...
+        row[1] = (time.mktime((2014,2,1,0,0,0,0,0,0)) - time.mktime(row[1].timetuple())) /  24 / 3600
         # transform using dictionary city_names, city_groups, types
         row[2] = city_names[row[2]]
         row[3] = city_groups[row[3]]
@@ -131,10 +133,22 @@ def transform_data(rows, city_names, city_groups, types):
     return rows
 
 
+def imputation(X_all, n_train, y_train, train_header, test_header):
+    pass
+
+def parse_arg(args):
+    config = {}
+    for arg in args:
+        if arg == '-i': config['-i']=True
+        if arg == '-s': config['-s']=True
+    return config
+
 
 if __name__ == '__main__':
     train = 'train.csv'
     test = 'test.csv'
+
+    config = parse_arg(sys.argv)
 
     # read data
     rows, rows_train, rows_test = get_all_rows(train, test)
@@ -142,46 +156,88 @@ if __name__ == '__main__':
     city_groups = scan_city_group(rows)
     types = scan_type(rows)
 
-    print 'citys = %s ' % city_names
-    print 'city group = %s ' % city_groups
-    print 'types = %s ' % types
-
-    # tranfrom data to numeric types
-    rows_train = transform_data(rows_train, city_names, city_groups, types)
-    rows_test = transform_data(rows_test, city_names, city_groups, types)
-    
-
-    # convert to float type
-    rows_train = np.array(rows_train, dtype = float)
-    rows_test = np.array(rows_test, dtype = float)
-    # print 'rows_test.shapre', rows_test.shape
-
-
-    # merge train and test in order to do processing together
-    X_train = rows_train[:, 0:len(rows_train[0])-1]
-    y_train = rows_train[:, len(rows_train[0])-1]
-    X_test  = rows_test
-
-    X_all   = np.vstack((X_train, rows_test))
-    # print 'X_all.shapre', X_all.shape
-    
-
-    # standization, mean = 0, variance = 1
-    X_all = scale(X_all)
-
-    # split trainning and test data
-    X_train = X_all[0:len(X_train),:]
-    X_test  = X_all[len(X_train):len(X_all),:]
-    # print 'X_test.shapre', X_test.shape
-    
-    # put revenue back
-    rows_train = np.c_[X_train, y_train]
+    print 'citys = %s, %s ' % (len(city_names), city_names)
+    print 'city group = %s, %s ' % (len(city_groups), city_groups)
+    print 'types = %s, %s ' % (len(types), types)
 
     train_header = read_csv_header(train)
     test_header = read_csv_header(test)
     train_header = train_header[1:len(train_header)]
     test_header = test_header[1:len(test_header)]
 
-    write_csv('train_cleaned.csv', rows_train, train_header, True)
-    write_csv('test_cleaned.csv', X_test, test_header, True)
+    # tranfrom data to numeric types
+    rows_train = transform_data(rows_train, city_names, city_groups, types)
+    rows_test = transform_data(rows_test, city_names, city_groups, types)
 
+    # convert to float type
+    rows_train = np.array(rows_train, dtype = float)
+    rows_test = np.array(rows_test, dtype = float)
+    # print 'rows_test.shapre', rows_test.shape    
+
+    # write_csv('train_raw.csv', rows_train, train_header, True)
+    # write_csv('test_raw.csv', rows_test, test_header, True)
+
+    # merge train and test in order to do processing together
+    X_train = rows_train[:, 1:len(rows_train[0])-1]
+    y_train = rows_train[:, len(rows_train[0])-1]
+    X_test  = rows_test[:, 1:len(rows_test[0])]
+
+    print 'X_train.shape =', X_train.shape
+    print 'y_train.shape =', y_train.shape
+    print 'X_test.shape =', X_test.shape
+
+    X_all   = np.vstack((X_train, X_test))
+    
+    n_train = len(X_train)
+
+if '-s' in config:
+    print 'Standardizing...'
+    
+    # standization, mean = 0, variance = 1
+    X_all = scale(X_all)
+
+    # split trainning and test data
+    X_train = X_all[0:n_train,:]
+    X_test  = X_all[n_train:len(X_all),:]
+    # print 'X_test.shapre', X_test.shape
+    
+    # put revenue back
+    Xy_train = np.c_[X_train, y_train]
+
+    write_csv('train_scaled.csv', Xy_train, train_header, False)
+    write_csv('test_scaled.csv', X_test, test_header, False)
+
+if '-i' in config:
+    print 'Imputating...'
+    # 'open date' and 'city groups' and 'p1-p37'
+    cols = [0, 2] + [i for i in range(4, 4+37)]
+
+    print len(cols)
+
+    # drop off other feaatures
+    X_all = X_all[:, cols]
+
+    # make city groups has value 1 and 2 instead 0 and 1...
+    X_all[:,1] += 1
+
+    # create imputer object
+    imputer = Imputer(missing_values=0, strategy='median', verbose=1)
+
+    X_all = imputer.fit_transform(X_all)
+
+    # standization, mean = 0, variance = 1
+    X_all = scale(X_all)
+
+     # split trainning and test data
+    X_train = X_all[0:n_train,:]
+    X_test  = X_all[n_train:len(X_all),:]
+    print 'X_train.shapre', X_train.shape
+    print 'X_test.shapre', X_test.shape
+    
+    # put revenue back
+    Xy_train = np.c_[X_train, y_train]
+
+    imputed_headers = ['Days_Opened', 'City_Group'] + ['P' + str(i) for i in range(1, 38)]
+
+    write_csv('train_i.csv', Xy_train, imputed_headers + ['revenue'], False)
+    write_csv('test_i.csv', X_test, imputed_headers, False)
