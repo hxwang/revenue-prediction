@@ -4,51 +4,10 @@ import csv
 import sys
 import time
 import datetime
-from sklearn.preprocessing import *
 import numpy as np
+import read_data.py as rd
 
 
-def read_csv_all(filename):
-    rows = []
-    with open(filename, 'r') as f:
-        reader = csv.reader(f, delimiter=',')
-        for row in reader:
-            rows.append(row)
-    return rows
-
-
-def read_csv_header(filename):
-    with open(filename, 'r') as f:
-        reader = csv.reader(f, delimiter=',')
-        header = reader.next()
-        return header
-
-def read_csv(filename):
-    rows = []
-    with open(filename, 'r') as f:
-        reader = csv.reader(f, delimiter=',')
-        next(reader, None)  # skip the headers
-        for row in reader:
-            rows.append(row)
-    return rows
-
-def write_csv(filename, rows, header=None, removeId=False):
-    print 'writing to %s' % filename
-    start_idx = 1 if removeId else 0
-    with open(filename, 'w') as f:
-        writer = csv.writer(f, delimiter=',')
-        if header != None:            
-            writer.writerow(header)
-        for row in rows:
-            writer.writerow(row[start_idx:len(row)])            
-
-def get_all_rows(train, test):
-
-    rows_train = read_csv(train)
-    rows_test = read_csv(test)
-    rows = rows_train + rows_test
-
-    return rows, rows_train, rows_test
 
 
 
@@ -71,7 +30,7 @@ if __name__ == '__main__':
     test = 'test.csv'
 
     # read data
-    rows, rows_train, rows_test = get_all_rows(train, test)
+    rows, rows_train, rows_test = rd.get_all_rows(train, test)
     
 
 
@@ -86,8 +45,8 @@ if __name__ == '__main__':
     # # print 'rows_test.shapre', rows_test.shape
 
 
-    train_header = read_csv_header(train)
-    test_header = read_csv_header(test)
+    train_header = rd.read_csv_header(train)
+    test_header = rd.read_csv_header(test)
     train_header = train_header[1:len(train_header)-1]
     test_header = test_header[1:len(test_header)]
 
