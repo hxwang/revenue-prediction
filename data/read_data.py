@@ -1,5 +1,9 @@
 import csv
 import sys
+import time
+import datetime
+from sklearn.decomposition import PCA
+import numpy as np
 
 def read_csv_all(filename):
     rows = []
@@ -42,3 +46,86 @@ def get_all_rows(train, test):
     rows = rows_train + rows_test
 
     return rows, rows_train, rows_test
+
+    '''
+rows: n*m array
+columnId: int
+return: use mean revenue to represent the numeric value
+E.g.,
+{'a', 'b', 'c', 'a', 'b', 'd'} => {'a':0, 'b':1, 'c':2, 'd':3}
+'''
+def make_dict(rows, columnId, revenueId=42):
+    d = {}
+    count = {}
+    # scan each data
+    for row in rows:
+        k = row[columnId]
+        # if k in d: continue
+
+        if k not in d: 
+            d[k] = 0
+            count[k] = 0
+
+        if len(row) > revenueId:
+            d[k] = d[k] + float(row[revenueId])
+            count[k] = count[k] + 1
+
+
+    # calculate mean_revenue and assign to each numeric value
+    revenue_mean = sum(d.values())/sum(count.values())
+
+    print 'revenue_mean = %s d.values = %s count = %s' % (revenue_mean, sum(d.values()), sum(count.values()))
+
+    for k in d:
+        if d[k] == 0:
+            d[k] = revenue_mean
+        else:
+            d[k] = d[k]/count[k]
+
+    print d
+    return d
+
+
+'''
+rows: n*m array
+columnId: int
+return: use mean revenue to represent the numeric value
+E.g.,
+{'a', 'b', 'c', 'a', 'b', 'd'} => {'a':0, 'b':1, 'c':2, 'd':3}
+'''
+def make_ids(rows, columnId):
+    d = {}
+    
+    # scan each data
+    for row in rows:
+        k = row[columnId]        
+        if k not in d:
+            d[k] = len(d)
+            
+    return d
+
+def scan_city_name(rows):
+    return make_ids(rows, 2)
+
+def scan_city_group(rows):
+    return make_ids(rows, 3)
+
+def scan_type(rows):
+    return make_ids(rows, 4)
+
+
+'''
+transform nominal value to integer value
+'''
+def transform_data(rows, city_names, city_groups, types):
+
+    for row in rows:        
+        row[1] = datetime.datetime.strptime(row[1], '%m/%d/%Y').date()
+
+        # days opened...
+        row[1] = (time.mktime((2014,2,1,0,0,0,0,0,0)) - time.mktime(row[1].timetuple())) /  24 / 3600
+        # transform using dictionary city_names, city_groups, types
+        row[2] = city_names[row[2]]
+        row[3] = city_groups[row[3]]
+        row[4] = types[row[4]] 
+    return rows
