@@ -26,7 +26,8 @@ from sklearn.linear_model import BayesianRidge, LinearRegression
 read file, e.g., training file, testing file
 return: n*m matrix
 '''
-def read_csv(filename):    
+def read_csv(filename):
+    print 'reading csv from %s' % filename
     rows = []
     with open(filename, 'r') as f:
         reader = csv.reader(f, delimiter=',')
@@ -145,7 +146,7 @@ def predict(models, X, config={}, prob=False, weights=None):
     if len(models)==3 and not weights:
         weights = np.matrix([0.25, 0.3, 0.45]).T
 
-    if(weights != None):
+    if weights is not None:
         y = np.dot(ys, weights)
         print y.shape
     else:
@@ -256,12 +257,14 @@ def predict_with_one_class(config, X_train, y_train, X_test):
         ]    
     else:
         models = [
-            # KNeighborsRegressor(n_neighbors=22, weights='distance')
-            # LinearRegression()
-            # corr='cubic', theta0=1e-2, thetaL=1e-4, thetaU=1e-1, random_start=100
+
+            # KNeighborsRegressor(n_neighbors=25, weights='distance'),
+            # svm.NuSVR(nu=0.35, C=C, gamma=0.01),
+            # GradientBoostingRegressor(n_estimators=100, learning_rate=0.1, max_depth=3, random_state=0, loss='lad'),
+
             #GradientBoostingRegressor(n_estimators=50, learning_rate=0.01, max_depth=1, random_state=0, loss='lad'),
 
-            svm.SVR(C=C, epsilon=0.0001, degree=2, gamma=0.02),
+            #svm.SVR(C=C, epsilon=0.0001, degree=2, gamma=0.02),
 
             # GradientBoostingRegressor(n_estimators=1000, learning_rate=0.5, max_depth=3, random_state=0, loss='lad'),
 
@@ -439,6 +442,8 @@ def parse_arg(argv):
             config['weightfeature'] = True
         if arg == '-raw':
             config['raw'] = True
+        if arg == '-i':
+            config['imputation'] = True
     return config
 
 def main():
@@ -453,15 +458,20 @@ def main():
 
     if 'raw' in config:
         train_filename = '../data/train_raw.csv'
-        test_filename = '../data/train_raw.csv'
+        test_filename = '../data/train_raw.csv'    
+
+    if 'imputation' in config:
+        train_filename = '../data/train_i.csv'
+        test_filename = '../data/test_i.csv'
 
     # read training data and convert to numpy array
-    train_data = np.array(read_csv(train_filename), dtype=float)
-    
-   
+    train_data = np.array(read_csv(train_filename), dtype=float)   
 
     if 'pca' in config:
         # if use pca, use all features
+        cols = [i for i in range(0, len(train_data[0])-1)]
+    elif 'imputation' in config:
+        # if use imputation, use all features
         cols = [i for i in range(0, len(train_data[0])-1)]
     else:        
 
