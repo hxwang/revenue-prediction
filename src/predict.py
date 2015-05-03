@@ -468,9 +468,9 @@ def main():
         train_filename = '../data/pca_train.csv'
         test_filename = '../data/pca_test.csv'
 
-    if 'raw' in config:
-        train_filename = '../data/train_raw.csv'
-        test_filename = '../data/train_raw.csv'    
+    # if 'raw' in config:
+    #     train_filename = '../data/train_raw.csv'
+    #     test_filename = '../data/train_raw.csv'    
 
     if 'imputation' in config:
         train_filename = '../data/train_i.csv'

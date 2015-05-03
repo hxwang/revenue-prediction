@@ -9,6 +9,7 @@ data/train_cleaned.csv
 data/test_pca.csv
 data/train_pca.csv
 data/submission/data/
+data/to-delete/*
 
 report/*.aux
 report/*.log
