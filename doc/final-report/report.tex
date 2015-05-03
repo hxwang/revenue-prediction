@@ -1,4 +1,4 @@
-\documentclass[11pt, oneside]{article}   	% use "amsart" instead of "article" for AMSLaTeX format
+\documentclass[10pt, oneside]{article}   	% use "amsart" instead of "article" for AMSLaTeX format
 \usepackage{geometry}                		% See geometry.pdf to learn the layout options. There are lots.
 \geometry{letterpaper}                   		% ... or a4paper or a5paper or ... 
 %\geometry{landscape}                		% Activate for for rotated page geometry
@@ -131,6 +131,59 @@ There are total 63 cities in the entire dataset, too many new features will be a
 the there is no correlation between these two features and revenue.
 Thus we decided to drop both {\bf City} and {\bf Type} features.
 
+{\bf Feature Rank}
+We use feature \textbf{Select attributes} to rank features. In specific, we use attribute evaluator \textbf{ReliefAttributeEval} with search method \textbf{Ranker}, the cross validation is set as 5 folds. We get the following feature rank results
+
+{\scriptsize
+\begin{verbatim}
+=== Attribute selection 5 fold cross-validation seed: 10 ===
+
+average merit      average rank  attribute
+ 0.02  +- 0.007      1   +- 0        1 Open Date
+ 0.002 +- 0.002      5.2 +- 2.93    17 P13
+ 0.003 +- 0.005      5.8 +- 4.21    33 P29
+ 0.001 +- 0.003      6.6 +- 2.15    16 P12
+-0.001 +- 0.005      7   +- 4.65    21 P17
+ 0.002 +- 0.004      7.2 +- 5.78    25 P21
+ 0     +- 0.002      7.4 +- 3.5     14 P10
+ 0     +- 0.001      7.6 +- 4.27    12 P8
+-0.002 +- 0.004      9.4 +- 4.22    32 P28
+-0.001 +- 0.002      9.6 +- 6.25     8 P4
+-0.003 +- 0.004     10.2 +- 3.12    40 P36
+-0.003 +- 0.003     10.8 +- 2.56    22 P18
+-0.005 +- 0.004     14   +- 3.03    38 P34
+-0.005 +- 0.003     15   +- 3.46    13 P9
+-0.006 +- 0.003     16.4 +- 5.35    26 P22
+-0.006 +- 0.004     16.6 +- 5.68    10 P6
+-0.008 +- 0.006     18.8 +- 5.67    29 P25
+-0.008 +- 0.004     19.2 +-10.17    15 P11
+-0.008 +- 0.005     19.6 +- 2.73     5 P1
+-0.008 +- 0.004     20   +- 5.93     7 P3
+-0.009 +- 0.005     21.2 +- 1.6     20 P16
+-0.009 +- 0.004     21.4 +- 7.94     9 P5
+-0.011 +- 0.006     23.4 +- 8.69    24 P20
+-0.011 +- 0.005     23.6 +- 3.72    18 P14
+-0.011 +- 0.004     23.8 +- 2.32    39 P35
+-0.011 +- 0.005     24.6 +- 2.94    36 P32
+-0.012 +- 0.003     26.2 +- 3.66    27 P23
+-0.014 +- 0.006     28   +- 4.15    30 P26
+-0.015 +- 0.004     28.4 +- 5.57     4 Type
+-0.015 +- 0.006     28.6 +- 5.54    34 P30
+-0.015 +- 0.007     29.6 +- 3.93    37 P33
+-0.016 +- 0.006     32.4 +- 4.08    35 P31
+-0.016 +- 0.005     32.6 +- 3.01    31 P27
+-0.017 +- 0.007     33.4 +- 3.98    28 P24
+-0.017 +- 0.004     34   +- 2.61    11 P7
+-0.019 +- 0.007     34.2 +- 3.19    41 P37
+-0.018 +- 0.006     34.2 +- 2.23    19 P15
+-0.018 +- 0.004     34.6 +- 2.87    23 P19
+-0.026 +- 0.004     38.4 +- 0.8      6 P2
+-0.038 +- 0.004     40.2 +- 0.4      3 City Group
+-0.04  +- 0.005     40.8 +- 0.4      2 City
+ \end{verbatim}
+}
+
+
 \todo{Talk about PCA}
 \todo{try pca on dropped data}
 
@@ -159,7 +212,8 @@ Model & CV ($10^6$)  & PB ($10^6$)  & Rank & Parameters \\ \hline
 KNN & 2.30149 &   1.76177 & 1050 &  n-neighbors=22, weights=`distance' \\ \hline 
 NuSVR & 2.30379 &   1.73142 & 829 &  nu=0.38, C=1.8547e6, gamma=0.004 \\ \hline 
 GB  & 2.33207 &   1.80864 &  1361 & \begin{tabular}{@{}l@{}} n-estimators=100, learning-rate=0.1, \\ max-depth=3, loss=`lad', subsample=0.95 \end{tabular} \\ \hline
-SVR	& 2.32837 &	1.90432 	& 1792 & 	C=1.8547e6, epsilon=0.0001, gamma=0.02 \\ \hlineRF	& 2.35433 &	1.80236 	& 1321	 & n-estimators=100, min-weight-fraction-leaf=0.1 \\ \hline
+SVR	& 2.32837 &	1.90432 	& 1792 & 	C=1.8547e6, epsilon=0.0001, gamma=0.02 \\ \hline
+RF	& 2.35433 &	1.80236 	& 1321	 & n-estimators=100, min-weight-fraction-leaf=0.1 \\ \hline
 \end{tabular}
 \\
 {\small CV = Cross-validation score. PB = Public board score.}
