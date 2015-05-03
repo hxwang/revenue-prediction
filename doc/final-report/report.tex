@@ -150,6 +150,7 @@ We start from single model, model selection is done based on the average error o
 Models with their best cross-validation scores and the parameters are shown in \tabref{tab:single_model}, and we evaluated them on the public board.
 From \tabref{tab:single_model} we can see, with a well-tuned single model, we can only beat about half of the teams.
 The next step is to ensemble those single models.
+
 \begin{table}[htdp]
 \caption{Single Model Performance}
 \begin{center}
@@ -159,7 +160,8 @@ Model & CV ($10^6$)  & PB ($10^6$)  & Rank & Parameters \\ \hline
 KNN & 2.30149 &   1.76177 & 1050 &  n-neighbors=22, weights=`distance' \\ \hline 
 NuSVR & 2.30379 &   1.73142 & 829 &  nu=0.38, C=1.8547e6, gamma=0.004 \\ \hline 
 GB  & 2.33207 &   1.80864 &  1361 & \begin{tabular}{@{}l@{}} n-estimators=100, learning-rate=0.1, \\ max-depth=3, loss=`lad', subsample=0.95 \end{tabular} \\ \hline
-SVR	& 2.32837 &	1.90432 	& 1792 & 	C=1.8547e6, epsilon=0.0001, gamma=0.02 \\ \hlineRF	& 2.35433 &	1.80236 	& 1321	 & n-estimators=100, min-weight-fraction-leaf=0.1 \\ \hline
+SVR	& 2.32837 &	1.90432 	& 1792 & 	C=1.8547e6, epsilon=0.0001, gamma=0.02 \\ \hline
+RF	& 2.35433 &	1.80236 	& 1321	 & n-estimators=100, min-weight-fraction-leaf=0.1 \\ \hline
 \end{tabular}
 \\
 {\small CV = Cross-validation score. PB = Public board score.}
@@ -169,9 +171,24 @@ SVR	& 2.32837 &	1.90432 	& 1792 & 	C=1.8547e6, epsilon=0.0001, gamma=0.02 \\ \hl
 
 \subsection{Ensamble}
 Model ensemble is widely adopted especially in Kaggle competitions in the cases that scores can not be improved any further by using a single model.
-We ensemble 3 models, final prediction is a linear combination (weighted average) of the predictions from 3 models.
-Parameters and weights are further tuned based the cross-validation errors.
-\todo{Show the table of model, weights, parameters.}
+We ensemble 3 models, final prediction is a linear combination (weighted average) of the predictions from all the models.
+Parameters and weights are further tuned based the cross-validation errors, results are shown in \tabref{tab:ensemble}.
+Those the local CV score does not outperform those of single models, only $2.31220 \times 10^6$, however, it achieves a PB score $1.64870 \times 10^6$ which is much better than any single model.
+
+\begin{table}[htdp]
+\caption{Ensamble}
+\begin{center}
+\begin{tabular}{|c|c|l|}
+\hline 
+Model & Weight & Parameters \\ \hline 
+KNN & 0.30 &  n-neighbors=22, weights=`distance' \\ \hline 
+NuSVR & 0.45 &  nu=0.25, C=1.8547e6, gamma=0.01 \\ \hline 
+GB  & 0.25 & \begin{tabular}{@{}l@{}} n-estimators=100, learning-rate=1.0, \\ max-depth=1, loss=`lad' \end{tabular} \\ \hline
+\end{tabular}
+\end{center}
+\label{tab:ensemble}
+\end{table}
+
 
 \subsection{Unbalanced Dataset}
 As mentioned before, there are only 137 records in training set while test set contains 1000000 records.
