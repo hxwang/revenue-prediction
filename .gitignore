@@ -1,5 +1,6 @@
 *.pyc
 .DS_Store
+*.sublime-workspace
 
 src/solution.csv
 src/solution.zip
@@ -11,9 +12,9 @@ data/train_pca.csv
 data/submission/data/
 data/to-delete/*
 
-report/*.aux
-report/*.log
-report/*.out
-report/report.pdf
-report/*.synctex.gz
-report/figs/*converted-to.pdf
+doc/final-report/*.aux
+doc/final-report/*.log
+doc/final-report/*.out
+doc/final-report/report.pdf
+doc/final-report/*.synctex.gz
+doc/final-report/figs/*converted-to.pdf
