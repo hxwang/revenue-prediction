@@ -87,6 +87,8 @@ if '-s' in config:
     write_csv('train_scaled.csv', Xy_train, train_header, False)
     write_csv('test_scaled.csv', X_test, test_header, False)
 
+# drop categorical feature
+# city-name, type
 if '-i' in config or '-p' in config:
     
     # 'open date' and 'city groups' and 'p1-p37'
@@ -111,6 +113,19 @@ if '-p' in config:
     X_all = pca.fit_transform(X_all)
     print 'variance = ', pca.explained_variance_ratio_
     print 'total variance = ', np.sum(pca.explained_variance_ratio_)
+
+    # split trainning and test data
+    X_train = X_all[0:n_train,:]
+    X_test  = X_all[n_train:len(X_all),:]
+    # print 'X_test.shapre', X_test.shape
+    
+    # put revenue back
+    Xy_train = np.c_[X_train, y_train]
+
+    pca_headers = ['P' + str(i) for i in range(1, len(X_train[0])+1)]
+    
+    write_csv('train_pca.csv', Xy_train, pca_headers + ['revenue'], False)
+    write_csv('test_pca.csv', X_test, pca_headers, False)
 
 if '-i' in config: 
 

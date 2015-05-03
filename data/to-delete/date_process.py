@@ -4,7 +4,6 @@ import csv
 import sys
 import time
 import datetime
-from sklearn.preprocessing import *
 import numpy as np
 import read_data.py as rd
 
