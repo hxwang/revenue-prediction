@@ -132,7 +132,8 @@ the there is no correlation between these two features and revenue.
 Thus we decided to drop both {\bf City} and {\bf Type} features.
 
 {\bf Feature Rank}
-We use feature \textbf{Select attributes} to rank features. In specific, we use attribute evaluator \textbf{ReliefAttributeEval} with search method \textbf{Ranker}, the cross validation is set as 5 folds. We get the following feature rank results
+We use feature \textbf{Select attributes} to rank features. In specific, we use attribute evaluator \textbf{ReliefAttributeEval} with search method \textbf{Ranker}, the cross validation is set as 5 folds. ReliefAttributeEval is an attribute evaluator that evaluates the worth of an attribute by repeatedly sampling an instance and considering the value of the given attribute for the nearest instance of the same and different class. It can operate on both discrete and continuous class data. We get the following feature rank results
+
 
 {\scriptsize
 \begin{verbatim}
@@ -203,7 +204,6 @@ We start from single model, model selection is done based on the average error o
 Models with their best cross-validation scores and the parameters are shown in \tabref{tab:single_model}, and we evaluated them on the public board.
 From \tabref{tab:single_model} we can see, with a well-tuned single model, we can only beat about half of the teams.
 The next step is to ensemble those single models.
-
 \begin{table}[htdp]
 \caption{Single Model Performance}
 \begin{center}
@@ -224,6 +224,11 @@ RF	& 2.35433 &	1.80236 	& 1321	 & n-estimators=100, min-weight-fraction-leaf=0.1
 
 \subsection{Ensamble}
 Model ensemble is widely adopted especially in Kaggle competitions in the cases that scores can not be improved any further by using a single model.
+<<<<<<< HEAD
+We ensemble 3 models, final prediction is a linear combination (weighted average) of the predictions from 3 models.
+Parameters and weights are further tuned based the cross-validation errors.
+\todo{Show the table of model, weights, parameters.}
+=======
 We ensemble 3 models, final prediction is a linear combination (weighted average) of the predictions from all the models.
 Parameters and weights are further tuned based the cross-validation errors, results are shown in \tabref{tab:ensemble}.
 Those the local CV score does not outperform those of single models, only $2.31220 \times 10^6$, however, it achieves a PB score $1.64870 \times 10^6$ which is much better than any single model.
@@ -244,6 +249,7 @@ GB  & 0.25 & \begin{tabular}{@{}l@{}} n-estimators=100, learning-rate=1.0, \\ ma
 
 \todo{Add a plot show CV/PB scores of each models.}
 
+>>>>>>> c734fe9b06c5a0b47eb2d9e282d0c5bf14fc5b1d
 
 \subsection{Unbalanced Dataset}
 As mentioned before, there are only 137 records in training set while test set contains 1000000 records.
