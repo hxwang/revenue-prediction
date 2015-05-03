@@ -5,8 +5,9 @@ import sys
 import time
 import datetime
 from sklearn.decomposition import PCA
+from sklearn.preprocessing import scale
 import numpy as np
-import read_data as rd
+from read_data import *
 
 
 
@@ -31,23 +32,23 @@ if __name__ == '__main__':
     config = parse_arg(sys.argv)
 
     # read data
-    rows, rows_train, rows_test = rd.get_all_rows(train, test)
-    city_names = rd.scan_city_name(rows)
-    city_groups = rd.scan_city_group(rows)
-    types = rd.scan_type(rows)
+    rows, rows_train, rows_test = get_all_rows(train, test)
+    city_names = scan_city_name(rows)
+    city_groups = scan_city_group(rows)
+    types = scan_type(rows)
 
     print 'citys = %s, %s ' % (len(city_names), city_names)
     print 'city group = %s, %s ' % (len(city_groups), city_groups)
     print 'types = %s, %s ' % (len(types), types)
 
-    train_header = rd.read_csv_header(train)
-    test_header = rd.read_csv_header(test)
+    train_header = read_csv_header(train)
+    test_header = read_csv_header(test)
     train_header = train_header[1:len(train_header)]
     test_header = test_header[1:len(test_header)]
 
     # tranfrom data to numeric types
-    rows_train = rd.transform_data(rows_train, city_names, city_groups, types)
-    rows_test = rd.transform_data(rows_test, city_names, city_groups, types)
+    rows_train = transform_data(rows_train, city_names, city_groups, types)
+    rows_test = transform_data(rows_test, city_names, city_groups, types)
 
     # convert to float type
     rows_train = np.array(rows_train, dtype = float)
