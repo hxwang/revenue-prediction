@@ -54,17 +54,25 @@ visualize predict results
 '''
 def visualize_predict(y_predict, y_test):
     import matplotlib.pyplot as plt
-    
+    import matplotlib as mtb
+    font = {'family' : 'normal',
+        'weight' : 'bold',
+        'size'   : 22}
+
+    mtb.rc('font', **font)
+
     X = [i for i in range(0, len(y_predict))]
     print 'X', X
 
     fig = plt.gcf()
     fig.set_size_inches(18.5,10.5)
-    plt.scatter(X, y_test, c='k', label='data')
-    plt.plot(X, y_predict, c='g', label='prediction')
+    plt.scatter(X, y_test, c='k', label='real',linewidth=4)
+    plt.plot(X, y_predict, c='g', label='predicted',linewidth=3)
     plt.axis('tight')
     plt.legend(loc='center left')
-    plt.title("Predict v.s. Real")
+    plt.title("Predict v.s. Real", fontsize=26)
+    plt.xlabel('Instances', fontsize=26)
+    plt.ylabel('Revenue', fontsize=26)
     plt.show()
 
 '''   
@@ -466,8 +474,8 @@ def main():
     test_filename = '../data/test_scaled.csv'
 
     if 'pca' in config:
-        train_filename = '../data/pca_train.csv'
-        test_filename = '../data/pca_test.csv'
+        train_filename = '../data/train_pca.csv'
+        test_filename = '../data/test_pca.csv'
 
     # if 'raw' in config:
     #     train_filename = '../data/train_raw.csv'
