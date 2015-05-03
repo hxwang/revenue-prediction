@@ -264,9 +264,9 @@ def predict_with_one_class(config, X_train, y_train, X_test):
             ]    
     else:
         models = [
-            KNeighborsRegressor(n_neighbors=21, weights='distance'),
-            svm.NuSVR(nu=0.38, C=C, gamma=0.004),
-            GradientBoostingRegressor(n_estimators=100, learning_rate=0.1, max_depth=3, random_state=0, loss='lad', subsample=0.95),
+            # KNeighborsRegressor(n_neighbors=22, weights='distance'),
+            # svm.NuSVR(nu=0.38, C=C, gamma=0.004),
+            #GradientBoostingRegressor(n_estimators=100, learning_rate=0.1, max_depth=3, random_state=0, loss='lad', subsample=0.95),
 
             # KNeighborsRegressor(n_neighbors=25, weights='distance'),
             # svm.NuSVR(nu=0.35, C=C, gamma=0.01),
@@ -275,6 +275,7 @@ def predict_with_one_class(config, X_train, y_train, X_test):
             #GradientBoostingRegressor(n_estimators=50, learning_rate=0.01, max_depth=1, random_state=0, loss='lad'),
 
             #svm.SVR(C=C, epsilon=0.0001, degree=2, gamma=0.02),
+            RandomForestRegressor(n_estimators=100, min_weight_fraction_leaf=0.1, n_jobs=4)
 
             # GradientBoostingRegressor(n_estimators=1000, learning_rate=0.5, max_depth=3, random_state=0, loss='lad'),
 

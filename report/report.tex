@@ -137,7 +137,7 @@ Thus we decided to drop both {\bf City} and {\bf Type} features.
 \subsubsection{Feature Normalization}
 Since features have different scale and ranges, feature normalization is a necessary preprocessing step if we would like to compute the distance between two instances which is used for finding nearest neighbors. 
 For example, one feature ranges from 1 to 1000 will dominant the distance computation if all other features are range from 0 to 1.
-We choose to use standardization the entire dataset (stack training set and test set together) that each feature is transformed to zero mean and unit variance.
+We choose to use standardization on the entire dataset (stack training set and test set together) such that each feature is transformed to zero mean and unit variance.
 
 \section{Results and Discussion}
 
@@ -147,12 +147,29 @@ It provides simple and efficient tools for data mining and data analysis range f
 
 \subsection{Single Model Selection}
 We start from single model, model selection is done based on the average error of a 3 folds cross-validation.
-
-\todo{Show 5+ models and there 'best' cv scores as well as LB scores}
+Models with their best cross-validation scores and the parameters are shown in \tabref{tab:single_model}, and we evaluated them on the public board.
+From \tabref{tab:single_model} we can see, with a well-tuned single model, we can only beat about half of the teams.
+The next step is to ensemble those single models.
+\begin{table}[htdp]
+\caption{Single Model Performance}
+\begin{center}
+\begin{tabular}{|c|c|c|c|l|}
+\hline 
+Model & CV ($10^6$)  & PB ($10^6$)  & Rank & Parameters \\ \hline 
+KNN & 2.30149 &   1.76177 & 1050 &  n-neighbors=22, weights=`distance' \\ \hline 
+NuSVR & 2.30379 &   1.73142 & 829 &  nu=0.38, C=1.8547e6, gamma=0.004 \\ \hline 
+GB  & 2.33207 &   1.80864 &  1361 & \begin{tabular}{@{}l@{}} n-estimators=100, learning-rate=0.1, \\ max-depth=3, loss=`lad', subsample=0.95 \end{tabular} \\ \hline
+SVR	& 2.32837 &	1.90432 	& 1792 & 	C=1.8547e6, epsilon=0.0001, gamma=0.02 \\ \hlineRF	& 2.35433 &	1.80236 	& 1321	 & n-estimators=100, min-weight-fraction-leaf=0.1 \\ \hline
+\end{tabular}
+\\
+{\small CV = Cross-validation score. PB = Public board score.}
+\end{center}
+\label{tab:single_model}
+\end{table}%
 
 \subsection{Ensamble}
 Model ensemble is widely adopted especially in Kaggle competitions in the cases that scores can not be improved any further by using a single model.
-We ensemble the top 3 models by weighted average which means the final prediction is a linear combination of the predictions from 3 models.
+We ensemble 3 models, final prediction is a linear combination (weighted average) of the predictions from 3 models.
 Parameters and weights are further tuned based the cross-validation errors.
 \todo{Show the table of model, weights, parameters.}
 
