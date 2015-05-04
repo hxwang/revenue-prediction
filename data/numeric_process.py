@@ -90,7 +90,7 @@ if '-s' in config:
 
 # drop categorical feature
 # city-name, type
-if '-i' in config or '-p' in config:
+if '-i' in config or '-pt' in config or '-ps' in config:
     
     # 'open date' and 'city groups' and 'p1-p37'
     cols = [0, 2] + [i for i in range(4, 4+37)]
@@ -102,23 +102,31 @@ if '-i' in config or '-p' in config:
     # X_train = X_train[:, cols]
     # X_test = X_test[:, cols]
 
-if '-p' in config:
+if '-pt' or '-ps' in config:
     print 'PCA...'
 
-    pca = PCA(n_components=15)
-
-    print X_train.shape
+    pca = PCA(n_components=15)    
     
     X_all = scale(X_all)
-    
-    X_all = pca.fit_transform(X_all)
+
+    print X_all.shape
+
+    if '-pt' in config:            
+        X_all = pca.fit_transform(X_all)
+        # split trainning and test data
+        X_train = X_all[0:n_train,:]
+        X_test  = X_all[n_train:len(X_all),:]
+    if '-ps' in config:
+        # split trainning and test data
+        X_train = X_all[0:n_train,:]
+        X_test  = X_all[n_train:len(X_all),:]
+
+        pca.fit(X_train)
+        X_train = pca.transform(X_train)
+        X_test = pca.transform(X_test)
+
     print 'variance = ', pca.explained_variance_ratio_
     print 'total variance = ', np.sum(pca.explained_variance_ratio_)
-
-    # split trainning and test data
-    X_train = X_all[0:n_train,:]
-    X_test  = X_all[n_train:len(X_all),:]
-    # print 'X_test.shapre', X_test.shape
     
     # put revenue back
     Xy_train = np.c_[X_train, y_train]
