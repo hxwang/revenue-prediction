@@ -16,4 +16,4 @@ ylim([1.6 2.0])
 
 set(gca, 'FontSize', 16, 'FontName', 'Helvetica');
 
-print -depsc scores.eps
+print('-depsc', '../figs/cv_pb_scores.eps', '-S800,500');
