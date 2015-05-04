@@ -51,7 +51,7 @@ In this project, we work on predicting revenue for restaurants which is a compet
 \end{abstract}
 
 \section{Introduction}
-\todo{re-phrase this section}
+%\todo{re-phrase this section}
 Deciding when and where to open new restaurants is largely a subjective process based on the personal judgement and experience of development teams. 
 This subjective data is difficult to accurately extrapolate across geographies and cultures.
 New restaurant sites take large investments of time and capital to get up and running. 
@@ -192,14 +192,14 @@ average merit      average rank  attribute
 
 From the figure, we can see the $15$ attributes are required to cover $95\%$ variance of the training set, while $35$ attributes are required to cover the $95\%$ of testing dataset, or the combination of training and testing dataset. From the results, we can see that principal components analysis is not helpful in performing dimensionality reduction in this dataset.
 
-\begin{figure}[!ht] %  figure placement: here, top, bottom, or page
+\begin{figure}[h] %  figure placement: here, top, bottom, or page
    \centering
    \includegraphics[width=5in]{figs/pca_seperate.PNG} 
    \caption{Principal Components Analysis on the training dataset}
    \label{fig:pca_train}
 \end{figure}
 
-\begin{figure}[!ht] %  figure placement: here, top, bottom, or page
+\begin{figure}[h] %  figure placement: here, top, bottom, or page
    \centering
    \includegraphics[width=5in]{figs/pca_test.PNG} 
    \caption{Principal Components Analysis on the testing dataset}
@@ -218,8 +218,8 @@ From the figure, we can see the $15$ attributes are required to cover $95\%$ var
 
 \begin{figure}[!ht] %  figure placement: here, top, bottom, or page
    \centering
-   \subfigure[]{\includegraphics[width=.48\linewidth]{figs/correlation_train.png} \label{fig_corr_train}}   
-   \subfigure[]{\includegraphics[width=.48\linewidth]{figs/correlation_test.png}  \label{fig_corr_test}}
+   \subfigure[Training set]{\includegraphics[width=.48\linewidth]{figs/correlation_train.png} \label{fig_corr_train}}   
+   \subfigure[Test set]{\includegraphics[width=.48\linewidth]{figs/correlation_test.png}  \label{fig_corr_test}}
    \caption{Correlation among features in training set and testing set respectively.}  
 \end{figure}
 
@@ -267,7 +267,7 @@ Parameters and weights are further tuned based the cross-validation errors, resu
 Those the local CV score does not outperform those of single models, only $2.31220 \times 10^6$, however, it achieves a PB score $1.64870 \times 10^6$ which is much better than any single model.
 Comparison between different single models and the ensemble one are show in \figref{fig:models}.
 
-\begin{table}[htdp]
+\begin{table}[h]
 \caption{Ensamble}
 \begin{center}
 \begin{tabular}{|c|c|l|}
@@ -281,10 +281,10 @@ GB  & 0.25 & \begin{tabular}{@{}l@{}} n-estimators=100, learning-rate=1.0, \\ ma
 \label{tab:ensemble}
 \end{table}
 
-\begin{figure}[htbp] %  figure placement: here, top, bottom, or page
+\begin{figure}[h] %  figure placement: here, top, bottom, or page
    \centering
    \includegraphics[width=6in]{figs/models.eps} 
-   \caption{Comparison of models.}
+   \caption{Comparison of different models.}
    \label{fig:models}
 \end{figure}
 
@@ -293,14 +293,7 @@ GB  & 0.25 & \begin{tabular}{@{}l@{}} n-estimators=100, learning-rate=1.0, \\ ma
 \subsection{Visualize Prediction Results}
 We visualize the prediction results in the cross-validation process to see the performance of different prediction model. Figure~\ref{fig:predict_results} demonstrates an example of the prediction results under different prediction model, namely \textbf{GradientBoostingRegressor}, \textbf{svm.NuSVR}, \textbf{KNeighborsRegressor} and \textbf{Ensemble} approaches respectively.
 
-%\begin{figure}[!ht] %  figure placement: here, top, bottom, or page
-%   \centering
-%   \includegraphics[width=4in]{figs/predict_results_ensemble.PNG} 
-%   \caption{An example the of prediction results of the ensemble approach.}
-%   \label{fig:predict_results}
-%\end{figure}
-
-\begin{figure*}[th]
+\begin{figure*}[h]
 \centering
 \subfigure[GradientBoostingRegressor]{\includegraphics[width=.49\textwidth]{figs/GB_predit.eps}\label{fig:gboost}}
 \subfigure[svm.NuSVR]{\includegraphics[width=.49\textwidth]{figs/NuSVR_predit.eps}\label{fig:usvr}}
@@ -319,12 +312,26 @@ As mentioned before, there are only 137 records in training set while test set c
 The unbalanced dataset makes the models extremely easy to be overfitted and cross-validation still can give us a good estimation of the performance on unseen records.
 As shown in \figref{fig:cv_lb_error}, the average RMSE of cross-validation has no strong correlation with that on public board.
 
-\begin{figure}[htbp] %  figure placement: here, top, bottom, or page
+\begin{figure}[h]
    \centering
    \includegraphics[width=5in]{figs/cv_pb_scores.eps} 
    \caption{RMSE of each submission.}
    \label{fig:cv_lb_error}
 \end{figure}
+
+\section{Competition Results}
+The `Restaurant Revenue Prediction' competition started on 3/23/2015 and ended on 5/4/2015.
+There are 2340 teams and 2557 players participated in this competition, and 34388 entries are evaluated.
+The best results of each on the public board is shown in \figref{fig:pb}.
+\todo{add private board results}
+
+\begin{figure}[h]
+   \centering
+   \includegraphics[width=5in]{figs/pb.eps} 
+   \caption{RMSE and ranking on the public board.}
+   \label{fig:pb}
+\end{figure}
+
 
 
 \section{Conclusion} 

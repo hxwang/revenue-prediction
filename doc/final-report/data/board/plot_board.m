@@ -34,4 +34,4 @@ set(gca, 'FontSize', 20, 'FontName', 'Helvetica');
 filename = '../../figs/pb.eps'
 fprintf(stdout, 'saving to %s\n', filename);
 
-print('-depsc', filename, '-S800,500');
+print('-depsc', filename, '-S800,400');
