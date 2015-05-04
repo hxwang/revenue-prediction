@@ -188,7 +188,7 @@ average merit      average rank  attribute
 }
 
 
-\subsection{Principal Component Analysis (PCA)} We apply principal component analysis after cleaning the data (i.e., transform open data and categorical data to numeric data). Principal components analysis is useful in reducing dimensionality by choosing enough eigenvectors to account for some percentage of the variance of in the original data. Here we set the variance as $95\%$. We conduct principal components on both the training dataset, testing dataset, and the combination of training and testing dataset. The results are presented in Figure~\ref{fig:pca_train} and Figure~\ref{fig:pca_test} and Figure~\ref{fig:pca_all} respectively. 
+\subsubsection{Principal Component Analysis (PCA)} We apply principal component analysis after cleaning the data (i.e., transform open data and categorical data to numeric data). Principal components analysis is useful in reducing dimensionality by choosing enough eigenvectors to account for some percentage of the variance of in the original data. Here we set the variance as $95\%$. We conduct principal components on both the training dataset, testing dataset, and the combination of training and testing dataset. The results are presented in Figure~\ref{fig:pca_train} and Figure~\ref{fig:pca_test}. Due to page limits, we omit the figure showing the principal analysis on the combination of training and testing data set. 
 
 From the figure, we can see the $15$ attributes are required to cover $95\%$ variance of the training set, while $35$ attributes are required to cover the $95\%$ of testing dataset, or the combination of training and testing dataset. From the results, we can see that principal components analysis is not helpful in performing dimensionality reduction in this dataset.
 
@@ -206,19 +206,31 @@ From the figure, we can see the $15$ attributes are required to cover $95\%$ var
    \label{fig:pca_test}
 \end{figure}
 
-\begin{figure}[htbp] %  figure placement: here, top, bottom, or page
+%\begin{figure}[htbp] %  figure placement: here, top, bottom, or page
+%   \centering
+%   \includegraphics[width=5in]{figs/pca_all.PNG} 
+%   \caption{Principal Components Analysis on the complete dataset, including training and testing data.}
+%   \label{fig:pca_all}
+%\end{figure}
+
+
+\subsection{Correlation among Features} We further study the correlation among features in the training set and testing set respectively. We plot the results in Figure~\ref{fig_corr_train} and Figure~\ref{fig_corr_test} respectively. 
+
+\begin{figure}[!ht] %  figure placement: here, top, bottom, or page
    \centering
-   \includegraphics[width=5in]{figs/pca_all.PNG} 
-   \caption{Principal Components Analysis on the complete dataset, including training and testing data.}
-   \label{fig:pca_all}
+   \subfigure[]{\includegraphics[width=.48\linewidth]{figs/correlation_train.png} \label{fig_corr_train}}   
+   \subfigure[]{\includegraphics[width=.48\linewidth]{figs/correlation_test.png}  \label{fig_corr_test}}
+   \caption{Correlation among features in training set and testing set respectively.}  
 \end{figure}
+
+
 
 \subsubsection{Feature Normalization}
 Since features have different scale and ranges, feature normalization is a necessary preprocessing step if we would like to compute the distance between two instances which is used for finding nearest neighbors. 
 For example, one feature ranges from 1 to 1000 will dominant the distance computation if all other features are range from 0 to 1.
 We choose to use standardization on the entire dataset (stack training set and test set together) such that each feature is transformed to zero mean and unit variance.
 
-\section{Results and Discussion}
+\section{Training and Testing}
 
 \subsection{Toolbox}
 We use Scikit-Learn which is a open source python library built on NumPy, SciPy, and matplotlib. 
