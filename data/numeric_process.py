@@ -5,7 +5,7 @@ import sys
 import time
 import datetime
 from sklearn.decomposition import PCA
-from sklearn.preprocessing import scale
+from sklearn.preprocessing import scale, Imputer
 import numpy as np
 from read_data import *
 
@@ -102,7 +102,7 @@ if '-i' in config or '-pt' in config or '-ps' in config:
     # X_train = X_train[:, cols]
     # X_test = X_test[:, cols]
 
-if '-pt' or '-ps' in config:
+if '-pt' in config or '-ps' in config:
     print 'PCA...'
 
     pca = PCA(n_components=15)    
@@ -143,7 +143,7 @@ if '-i' in config:
     X_all[:,1] += 1
 
     # create imputer object
-    imputer = Imputer(missing_values=0, strategy='median', verbose=1)
+    imputer = Imputer(missing_values=0, strategy='mean', verbose=1)
 
     X_all = imputer.fit_transform(X_all)
 
