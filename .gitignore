@@ -18,3 +18,4 @@ doc/final-report/*.out
 doc/final-report/report.pdf
 doc/final-report/*.synctex.gz
 doc/final-report/figs/*converted-to.pdf
+doc/final-report/data/board/*.csv
