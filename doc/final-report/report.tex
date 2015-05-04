@@ -188,7 +188,9 @@ average merit      average rank  attribute
 }
 
 
-\subsection{Principal Component Analysis (PCA)} We apply principal component analysis after cleaning the data (i.e., transform open data and categorical data to numeric data). Principal components analysis is useful in reducing dimensionality by choosing enough eigenvectors to account for some percentage of the variance of in the original data. Here we set the variance as $95\%$. We conduct principal components on both the training dataset, testing dataset, and the combination of training and testing dataset. The results are presented in Figure~\ref{fig:pca_train} and Figure~\ref{fig:pca_test} and Figure~\ref{fig:pca_all} respectively. From the figure, we can see the $15$ attributes are required to cover $95\%$ variance of the training set, while $35$ attributes are required to cover the $95\%$ of testing dataset, or the combination of training and testing dataset.
+\subsection{Principal Component Analysis (PCA)} We apply principal component analysis after cleaning the data (i.e., transform open data and categorical data to numeric data). Principal components analysis is useful in reducing dimensionality by choosing enough eigenvectors to account for some percentage of the variance of in the original data. Here we set the variance as $95\%$. We conduct principal components on both the training dataset, testing dataset, and the combination of training and testing dataset. The results are presented in Figure~\ref{fig:pca_train} and Figure~\ref{fig:pca_test} and Figure~\ref{fig:pca_all} respectively. 
+
+From the figure, we can see the $15$ attributes are required to cover $95\%$ variance of the training set, while $35$ attributes are required to cover the $95\%$ of testing dataset, or the combination of training and testing dataset. From the results, we can see that principal components analysis is not helpful in performing dimensionality reduction in this dataset.
 
 \begin{figure}[!ht] %  figure placement: here, top, bottom, or page
    \centering
@@ -313,7 +315,9 @@ As shown in \figref{fig:cv_lb_error}, the average RMSE of cross-validation has n
 \end{figure}
 
 
-\section{Conclusion}
+\section{Conclusion} 
+Revenue prediction is very helpful in guiding business investment as well as company management. In this project, we build a model to predict revenue of restaurants. The dataset is provided by TFI containing 135 training records and $10,000$ testing records. The small amount of training dataset makes the problem challenging as it is easy to overfit. We test different models for prediction the revenue including GradientBoostingRegressor, svm.NuSVR, KNeighborsRegressor, RandomForestRegressor and so on. We find that an ensemble of a subset of the single model performs the best than a single prediction model under the root mean square error (RMSE) measurements. Our prediction model is ranked within top $10\%$ among all the participated teams in this Kaggle competition.
+
 
 
 \end{document}  
