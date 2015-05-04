@@ -207,6 +207,7 @@ We start from single model, model selection is done based on the average error o
 Models with their best cross-validation scores and the parameters are shown in \tabref{tab:single_model}, and we evaluated them on the public board.
 From \tabref{tab:single_model} we can see, with a well-tuned single model, we can only beat about half of the teams.
 The next step is to ensemble those single models.
+
 \begin{table}[htdp]
 \caption{Single Model Performance}
 \begin{center}
@@ -227,14 +228,10 @@ RF	& 2.35433 &	1.80236 	& 1321	 & n-estimators=100, min-weight-fraction-leaf=0.1
 
 \subsection{Ensamble}
 Model ensemble is widely adopted especially in Kaggle competitions in the cases that scores can not be improved any further by using a single model.
-<<<<<<< HEAD
-We ensemble 3 models, final prediction is a linear combination (weighted average) of the predictions from 3 models.
-Parameters and weights are further tuned based the cross-validation errors.
-\todo{Show the table of model, weights, parameters.}
-=======
 We ensemble 3 models, final prediction is a linear combination (weighted average) of the predictions from all the models.
 Parameters and weights are further tuned based the cross-validation errors, results are shown in \tabref{tab:ensemble}.
 Those the local CV score does not outperform those of single models, only $2.31220 \times 10^6$, however, it achieves a PB score $1.64870 \times 10^6$ which is much better than any single model.
+Comparison between different single models and the ensemble one are show in \figref{fig:models}.
 
 \begin{table}[htdp]
 \caption{Ensamble}
@@ -250,7 +247,12 @@ GB  & 0.25 & \begin{tabular}{@{}l@{}} n-estimators=100, learning-rate=1.0, \\ ma
 \label{tab:ensemble}
 \end{table}
 
-\todo{Add a plot show CV/PB scores of each models.}
+\begin{figure}[htbp] %  figure placement: here, top, bottom, or page
+   \centering
+   \includegraphics[width=6in]{figs/models.eps} 
+   \caption{Comparison of models.}
+   \label{fig:models}
+\end{figure}
 
 
 

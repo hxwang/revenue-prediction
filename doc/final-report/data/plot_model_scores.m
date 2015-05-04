@@ -19,7 +19,7 @@ scores = [cv_scores, pb_scores];
 bar(scores);
 
 % title('RMSE / 10^6 ', 'FontSize', 16, 'FontWeight', 'bold', 'FontName', 'Helvetica');
-xlabel('Models', 'FontSize', 16, 'FontName', 'Helvetica');
+% xlabel('Models', 'FontSize', 16, 'FontName', 'Helvetica');
 ylabel('RMSE / 10^6', 'FontSize', 16, 'FontName', 'Helvetica');
 
 ylim([1.6 2.5]);
@@ -32,4 +32,4 @@ set(h, 'FontSize', 16, 'FontName', 'Helvetica');
 
 set(gca, 'FontSize', 16, 'FontName', 'Helvetica');
 
-print('-depsc', '../figs/models.eps', '-S800,400');
+print('-depsc', '../figs/models.eps', '-S800,300');

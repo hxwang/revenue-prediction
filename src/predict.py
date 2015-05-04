@@ -66,11 +66,11 @@ def visualize_predict(y_predict, y_test):
 
     fig = plt.gcf()
     fig.set_size_inches(18.5,10.5)
-    plt.scatter(X, y_test, c='k', label='real',linewidth=4)
-    plt.plot(X, y_predict, c='g', label='predicted',linewidth=3)
+    plt.scatter(X, y_test, c='k', label='Ground Truth',linewidth=4)
+    plt.plot(X, y_predict, c='g', label='Prediction',linewidth=3)
     plt.axis('tight')
     plt.legend(loc='center left')
-    plt.title("Predict v.s. Real", fontsize=40)
+    plt.title("Prediction v.s. Ground Truth", fontsize=40)
     plt.xlabel('Instances', fontsize=40)
     plt.ylabel('Revenue', fontsize=40)
     plt.show()
@@ -228,6 +228,8 @@ def kfolds(models, X, y, config={}, measure = 'RMSE'):
 
             score_arr.append(score)
             
+            print y_predict.tolist()
+            print y_test.tolist()
 
             if 'figure' in config:
                 # visualize predict results
@@ -284,9 +286,9 @@ def predict_with_one_class(config, X_train, y_train, X_test):
 
             #svm.SVR(C=C, epsilon=0.0001, degree=2, gamma=0.02),
             # RandomForestRegressor(n_estimators=100, min_weight_fraction_leaf=0.1, n_jobs=4)
-            # GradientBoostingRegressor(n_estimators=100, learning_rate=1.0, max_depth=1, random_state=0, loss='lad'),
-            # svm.NuSVR(nu=0.25, C=C, degree=2, gamma=0.01),
-            KNeighborsRegressor(n_neighbors=21, weights='distance'),
+            GradientBoostingRegressor(n_estimators=100, learning_rate=1.0, max_depth=1, random_state=0, loss='lad'),
+            #svm.NuSVR(nu=0.25, C=C, degree=2, gamma=0.01),
+            #KNeighborsRegressor(n_neighbors=21, weights='distance'),
 
             # GradientBoostingRegressor(n_estimators=1000, learning_rate=0.5, max_depth=3, random_state=0, loss='lad'),
 
