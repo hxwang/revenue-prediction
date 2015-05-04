@@ -241,7 +241,7 @@ SVR	& 2.32837 &	1.90432 	& 1792 & 	C=1.8547e6, epsilon=0.0001, gamma=0.02 \\ \hl
 RF	& 2.35433 &	1.80236 	& 1321	 & n-estimators=100, min-weight-fraction-leaf=0.1 \\ \hline
 \end{tabular}
 \\
-{\small CV = Cross-validation score. PB = Public board score.}
+{\small GB = GradientBoostingRegressor. RF = RandomForestRegressor. \\ CV = Cross-validation score. PB = Public board score.}
 \end{center}
 \label{tab:single_model}
 \end{table}%
@@ -288,10 +288,10 @@ We visualize the prediction results in the cross-validation process to see the p
 
 \begin{figure*}[th]
 \centering
-\subfigure[GradientBoostingRegressor]{\includegraphics[width=.49\textwidth, clip=true, trim ={30mm 5mm 30mm 20mm}]{figs/predict_results_gboost.PNG}\label{fig:gboost}}
-\subfigure[svm.NuSVR]{\includegraphics[width=.49\textwidth, clip=true, trim ={30mm 5mm 30mm 20mm}]{figs/predict_results_nusvr.PNG}\label{fig:usvr}}
-\subfigure[KNeighborsRegressor]{\includegraphics[width=.49\textwidth, clip=true, trim ={30mm 5mm 30mm 20mm}]{figs/predict_results_knn.PNG}\label{fig:knn}}
-\subfigure[Ensemble]{\includegraphics[width=.49\textwidth, clip=true, trim ={30mm 5mm 30mm 20mm}]{figs/predict_results_ensemble.PNG}\label{fig:ensemble}}
+\subfigure[GradientBoostingRegressor]{\includegraphics[width=.49\textwidth]{figs/GB_predit.eps}\label{fig:gboost}}
+\subfigure[svm.NuSVR]{\includegraphics[width=.49\textwidth]{figs/NuSVR_predit.eps}\label{fig:usvr}}
+\subfigure[KNeighborsRegressor]{\includegraphics[width=.49\textwidth]{figs/KNN_predit.eps}\label{fig:knn}}
+\subfigure[Ensemble]{\includegraphics[width=.49\textwidth]{figs/Ensamble_predit.eps}\label{fig:ensemble}}
 \caption{
 An example the of prediction results of the different prediction model.}
 \label{fig:predict_results}
