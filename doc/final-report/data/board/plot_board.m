@@ -2,22 +2,23 @@
 
 figure('visible','off');
 
-s = load('pb.txt');
+s = load('private_board.txt');
 s = sort(s) / 1e6;
+s = s(s<2.2);
 
-our_score = 1645325.28506 / 1e6;
+our_score = 1783082.67907 / 1e6;
 our_rank = sum(s < our_score);
 
-mean_score = 1929245.11374 / 1e6;
-mean_rank = sum(s < mean_score);
+% mean_score = 1929245.11374 / 1e6;
+% mean_rank = sum(s < mean_score);
 
 plot(s, 'LineWidth', 8);
 hold on;
 plot(our_rank, our_score, 'rd', 'MarkerSize', 12, 'MarkerFaceColor', 'auto');
-hold on;
-plot(mean_rank, mean_score, 'go', 'MarkerSize', 12, 'MarkerFaceColor', 'auto');
+% hold on;
+% plot(mean_rank, mean_score, 'go', 'MarkerSize', 12, 'MarkerFaceColor', 'auto');
 
-h = legend('All Teams', 'Ours', 'Average Revenue');
+h = legend('All Players', 'Ours');
 
 set(h, 'FontSize', 20, 'FontName', 'Helvetica', 'Location', 'Southeast');
 
@@ -27,7 +28,7 @@ grid on;
 xlabel('Rank', 'FontSize', 20, 'FontName', 'Helvetica');
 ylabel('RMSE / 10^6', 'FontSize', 20, 'FontName', 'Helvetica');
 
-ylim([1.4 2.8])
+ylim([1.7 2.2])
 
 set(gca, 'FontSize', 20, 'FontName', 'Helvetica');
 
