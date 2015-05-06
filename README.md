@@ -1,4 +1,4 @@
-# revenue-prediction
+# Restaurant Revenue Prediction
 
 This is a kaggle competition and our approach is ranked 67/2256.
 
