@@ -311,11 +311,11 @@ From Figure~\ref{fig:predict_results}, we can see that all prediction models cou
 \subsection{Unbalanced Dataset}
 As mentioned before, there are only 137 records in training set while test set contains 100,000 records.
 The unbalanced dataset makes the models extremely easy to be overfitted and cross-validation still can give us a good estimation of the performance on unseen records.
-As shown in \figref{fig:cv_lb_error}, the average RMSE of cross-validation has no strong correlation with that on public board.
+As shown in \figref{fig:cv_lb_error}, the average RMSE of cross-validation has no strong correlation with that on public board and the correlation coefficient is only -0.083207.
 
 \begin{figure}[h]
    \centering
-   \includegraphics[width=5.6in]{figs/cv_pb_scores.eps} 
+   \includegraphics[width=5.8in]{figs/cv_pb_scores.eps} 
    \caption{RMSE of each submission.}
    \label{fig:cv_lb_error}
 \end{figure}
@@ -329,8 +329,8 @@ from which we can see that most of the teams are overfitted, especially for thos
 
 \begin{figure}[h]
    \centering
-   \includegraphics[width=6in]{figs/pb.eps} 
-   \caption{RMSE and ranking on the leaderboard.}
+   \includegraphics[width=5.8in]{figs/pb.eps} 
+   \caption{RMSE and ranking on the leaderboards.}
    \label{fig:pb}
 \end{figure}
 

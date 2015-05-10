@@ -36,7 +36,7 @@ set(h, 'FontSize', 20, 'FontName', 'Helvetica', 'Location', 'Southeast');
 
 grid on;
 
-title('Leaderboard', 'FontSize', 20, 'FontWeight', 'bold', 'FontName', 'Helvetica');
+% title('Leaderboard', 'FontSize', 20, 'FontWeight', 'bold', 'FontName', 'Helvetica');
 xlabel('Rank', 'FontSize', 20, 'FontName', 'Helvetica');
 ylabel('RMSE / 10^6', 'FontSize', 20, 'FontName', 'Helvetica');
 
@@ -47,4 +47,4 @@ set(gca, 'FontSize', 20, 'FontName', 'Helvetica');
 filename = '../../figs/pb.eps'
 fprintf(stdout, 'saving to %s\n', filename);
 
-print('-depsc', filename, '-S800,500');
+print('-depsc', filename, '-S800,480');
