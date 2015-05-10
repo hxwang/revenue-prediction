@@ -1,38 +1,50 @@
 #!/usr/bin/env octave -qf
 
-figure('visible','off');
+% f = figure;
 
-s = load('private_board.txt');
-s = sort(s) / 1e6;
-s = s(s<2.2);
+% set(f, 'visible', 'off');
+threash_hold = 2.6
 
-our_score = 1783082.67907 / 1e6;
-our_rank = sum(s < our_score);
+private_s = load('private_board.txt');
+private_s = sort(private_s) / 1e6;
+private_s = private_s(private_s<threash_hold);
 
-% mean_score = 1929245.11374 / 1e6;
-% mean_rank = sum(s < mean_score);
+public_s = load('public_board.txt');
+public_s = sort(public_s) / 1e6;
+public_s = public_s(public_s<threash_hold);
 
-plot(s, 'LineWidth', 8);
+our_private_score = 1783082.67907 / 1e6;
+our_private_rank = sum(private_s < our_private_score);
+
+our_public_score = 1648696.38015 / 1e6
+our_public_rank = sum(public_s < our_public_score);
+
+our_scores = [our_private_score, our_public_score];
+our_ranks = [our_private_rank, our_public_rank];
+
+
+plot(public_s, 'LineWidth', 2);
 hold on;
-plot(our_rank, our_score, 'rd', 'MarkerSize', 12, 'MarkerFaceColor', 'auto');
-% hold on;
-% plot(mean_rank, mean_score, 'go', 'MarkerSize', 12, 'MarkerFaceColor', 'auto');
+plot(private_s, 'g','LineWidth', 2);
+hold on;
 
-h = legend('All Players', 'Ours');
+plot(our_ranks, our_scores, 'rd', 'MarkerSize', 12, 'MarkerFaceColor', 'auto');
+
+h = legend('Public Board','Private Board', 'Our Scores');
 
 set(h, 'FontSize', 20, 'FontName', 'Helvetica', 'Location', 'Southeast');
 
 grid on;
 
-% title('Public Board', 'FontSize', 20, 'FontWeight', 'bold', 'FontName', 'Helvetica');
+title('Leaderboard', 'FontSize', 20, 'FontWeight', 'bold', 'FontName', 'Helvetica');
 xlabel('Rank', 'FontSize', 20, 'FontName', 'Helvetica');
 ylabel('RMSE / 10^6', 'FontSize', 20, 'FontName', 'Helvetica');
 
-ylim([1.7 2.2])
+ylim([1.4 threash_hold])
 
 set(gca, 'FontSize', 20, 'FontName', 'Helvetica');
 
 filename = '../../figs/pb.eps'
 fprintf(stdout, 'saving to %s\n', filename);
 
-print('-depsc', filename, '-S800,400');
+print('-depsc', filename, '-S800,500');

@@ -47,7 +47,7 @@ Computer Science Dept. George Mason University}
 \maketitle
 
 \begin{abstract}
-In this project, we work on predicting revenue for restaurants which is a competition hosted in Kaggle. The dataset provided by TFI contains a training set of  $137$ restaurants records, and a test set of $100, 000$  restaurants records. We pre-process data to handle with categorical data and missing value. We explore the dataset by studying the correlation between features, feature ranking and principal component analysis. We test different models including GradientBoostingRegressor, svm.NuSVR, KNeighborsRegressor, RandomForestRegressor and so on. We find that an ensemble of a subset of these prediction models perform the best than a single model. Using RMSE evaluation approach, our prediction models is ranked within top $10\%$ of all participated teams in the competition.
+In this project, we worked on predicting the revenues for restaurants which is a competition hosted by Kaggle. The dataset provided by TFI contains a training set of  $137$ restaurant records, and a test set of $100, 000$  restaurant records. We pre-process data to handle with categorical attributes and missing values. We explore the dataset by studying the correlation between features, feature ranking and principal component analysis. We test different models including GradientBoostingRegressor, svm.NuSVR, KNeighborsRegressor, RandomForestRegressor and so on. We find that an ensemble of a subset of these regression models outperforms any of single models. Based on RMSE evaluation metric, our regression model ranked within top $3\%$ of all participated teams in the competition.
 \end{abstract}
 
 \section{Introduction}
@@ -117,7 +117,7 @@ Who win the public board may not win the private board since his model may be ov
 \subsection{Data Preparation}
 \subsubsection{Revenue at a Glance}
 In \figref{fig:revenue} we show the histogram of the revenues in the training set, from which we can see that majority of the revenues are around $5 \times 10^6$, 
-however, there are few ``outliers'' which makes both training and prediction hard especially under RMSE evaluation metric.
+however, there are few ``outliers'' which makes both training and prediction hard especially under the RMSE evaluation metric.
 
 \begin{figure}[htbp] %  figure placement: here, top, bottom, or page
    \centering
@@ -135,7 +135,7 @@ the there is no correlation between these two features and revenue.
 Thus we decided to drop both {\bf City} and {\bf Type} features.
 
 {\bf Feature Rank}
-We use feature \textbf{Select attributes} to rank features. In specific, we use attribute evaluator \textbf{ReliefAttributeEval} with search method \textbf{Ranker}, the cross validation is set as 5 folds. ReliefAttributeEval is an attribute evaluator that evaluates the worth of an attribute by repeatedly sampling an instance and considering the value of the given attribute for the nearest instance of the same and different class. It can operate on both discrete and continuous class data. We get the following feature rank results
+We use feature \textbf{Select attributes} to rank features. In specific, we use attribute evaluator \textbf{ReliefAttributeEval} with search method \textbf{Ranker}, the cross validation is set as 5 folds. ReliefAttributeEval is an attribute evaluator that evaluates the worth of an attribute by repeatedly sampling an instance and considering the value of the given attribute for the nearest instance of the same and different class. It can operate on both discrete and continuous class data. We get the following feature rank results.
 
 
 {\scriptsize
@@ -188,23 +188,24 @@ average merit      average rank  attribute
 }
 
 
-\subsubsection{Principal Component Analysis (PCA)} We apply principal component analysis after cleaning the data (i.e., transform open data and categorical data to numeric data). Principal components analysis is useful in reducing dimensionality by choosing enough eigenvectors to account for some percentage of the variance of in the original data. Here we set the variance as $95\%$. We conduct principal components on both the training dataset, testing dataset, and the combination of training and testing dataset. The results are presented in Figure~\ref{fig:pca_train} and Figure~\ref{fig:pca_test}. Due to page limits, we omit the figure showing the principal analysis on the combination of training and testing data set. 
+\subsubsection{Principal Component Analysis (PCA)} We apply principal component analysis after cleaning the data (i.e., transform open data and categorical data to numeric data). Principal components analysis is useful in reducing dimensionality by choosing enough eigenvectors to account for some percentage of the variance of in the original data. Here we set the variance as $95\%$. We conduct principal components on both the training dataset, testing dataset, and the combination of training and testing dataset. 
+%The results are presented in Figure~\ref{fig:pca_train} and Figure~\ref{fig:pca_test}. Due to page limits, we omit the figure showing the principal analysis on the combination of training and testing data set. 
+%From the figure, we can see the 
+$15$ attributes are sufficient   to cover $95\%$ variance for the training set, while $35$ attributes are required to cover the $95\%$ of testing dataset, or the combination of training and testing dataset. From the results, we can see that principal components analysis is not helpful in performing dimensionality reduction in this dataset.
 
-From the figure, we can see the $15$ attributes are required to cover $95\%$ variance of the training set, while $35$ attributes are required to cover the $95\%$ of testing dataset, or the combination of training and testing dataset. From the results, we can see that principal components analysis is not helpful in performing dimensionality reduction in this dataset.
-
-\begin{figure}[h] %  figure placement: here, top, bottom, or page
-   \centering
-   \includegraphics[width=5in]{figs/pca_seperate.PNG} 
-   \caption{Principal Components Analysis on the training dataset}
-   \label{fig:pca_train}
-\end{figure}
-
-\begin{figure}[h] %  figure placement: here, top, bottom, or page
-   \centering
-   \includegraphics[width=5in]{figs/pca_test.PNG} 
-   \caption{Principal Components Analysis on the testing dataset}
-   \label{fig:pca_test}
-\end{figure}
+%\begin{figure}[h] %  figure placement: here, top, bottom, or page
+%   \centering
+%   \includegraphics[width=5in]{figs/pca_seperate.PNG} 
+%   \caption{Principal Components Analysis on the training dataset}
+%   \label{fig:pca_train}
+%\end{figure}
+%
+%\begin{figure}[h] %  figure placement: here, top, bottom, or page
+%   \centering
+%   \includegraphics[width=5in]{figs/pca_test.PNG} 
+%   \caption{Principal Components Analysis on the testing dataset}
+%   \label{fig:pca_test}
+%\end{figure}
 
 %\begin{figure}[htbp] %  figure placement: here, top, bottom, or page
 %   \centering
@@ -214,7 +215,7 @@ From the figure, we can see the $15$ attributes are required to cover $95\%$ var
 %\end{figure}
 
 
-\subsection{Correlation among Features} We further study the correlation among features in the training set and testing set respectively. We plot the results in Figure~\ref{fig_corr_train} and Figure~\ref{fig_corr_test} respectively. 
+\subsection{Correlation among Features} We further study the correlation among features in the training set and testing set respectively. We plot the results in Figure~\ref{fig_corr_train} and Figure~\ref{fig_corr_test} respectively. Though the correlations among features pairs in test set follow the same pattern of that in training set, features are less correlated which also confirms the PCA result that test set is hard to compress.
 
 \begin{figure}[!ht] %  figure placement: here, top, bottom, or page
    \centering
@@ -228,7 +229,7 @@ From the figure, we can see the $15$ attributes are required to cover $95\%$ var
 \subsubsection{Feature Normalization}
 Since features have different scale and ranges, feature normalization is a necessary preprocessing step if we would like to compute the distance between two instances which is used for finding nearest neighbors. 
 For example, one feature ranges from 1 to 1000 will dominant the distance computation if all other features are range from 0 to 1.
-We choose to use standardization on the entire dataset (stack training set and test set together) such that each feature is transformed to zero mean and unit variance.
+We choose to use standardization on the entire dataset (stack training set and test set together) such that each feature is transformed to have zero mean and unit variance.
 
 \section{Training and Testing}
 
@@ -238,8 +239,8 @@ It provides simple and efficient tools for data mining and data analysis range f
 
 \subsection{Single Model Selection}
 We start from single model, model selection is done based on the average error of a 3 folds cross-validation.
-Models with their best cross-validation scores and the parameters are shown in \tabref{tab:single_model}, and we evaluated them on the public board.
-From \tabref{tab:single_model} we can see, with a well-tuned single model, we can only beat about half of the teams.
+Models with their best cross-validation scores and the parameters are shown in \tabref{tab:single_model}, and we evaluated them on the public board, both score and rank in the public board are shown in \tabref{tab:single_model}.
+From \tabref{tab:single_model} we can see that, with a well-tuned single model, we can only beat about half of the teams.
 The next step is to ensemble those single models.
 
 \begin{table}[htdp]
@@ -308,13 +309,13 @@ From Figure~\ref{fig:predict_results}, we can see that all prediction models cou
 
  
 \subsection{Unbalanced Dataset}
-As mentioned before, there are only 137 records in training set while test set contains 1000000 records.
+As mentioned before, there are only 137 records in training set while test set contains 100,000 records.
 The unbalanced dataset makes the models extremely easy to be overfitted and cross-validation still can give us a good estimation of the performance on unseen records.
 As shown in \figref{fig:cv_lb_error}, the average RMSE of cross-validation has no strong correlation with that on public board.
 
 \begin{figure}[h]
    \centering
-   \includegraphics[width=5in]{figs/cv_pb_scores.eps} 
+   \includegraphics[width=5.6in]{figs/cv_pb_scores.eps} 
    \caption{RMSE of each submission.}
    \label{fig:cv_lb_error}
 \end{figure}
@@ -322,20 +323,21 @@ As shown in \figref{fig:cv_lb_error}, the average RMSE of cross-validation has n
 \section{Competition Results}
 The `Restaurant Revenue Prediction' competition started on 3/23/2015 and ended on 5/4/2015.
 There are 2340 teams and 2557 players participated in this competition, and 34388 entries are evaluated.
-The best results of each on the public board is shown in \figref{fig:pb}.
-\todo{add private board results}
+Our best submission ranked 67 among 2257 valid teams (top 3\%).
+The best results of each team on the leader board are shown in \figref{fig:pb},
+from which we can see that most of the teams are overfitted, especially for those ranked top 100 in the public board.
 
 \begin{figure}[h]
    \centering
-   \includegraphics[width=5in]{figs/pb.eps} 
-   \caption{RMSE and ranking on the public board.}
+   \includegraphics[width=6in]{figs/pb.eps} 
+   \caption{RMSE and ranking on the leaderboard.}
    \label{fig:pb}
 \end{figure}
 
 
 
 \section{Conclusion} 
-Revenue prediction is very helpful in guiding business investment as well as company management. In this project, we build a model to predict revenue of restaurants. The dataset is provided by TFI containing 135 training records and $10,000$ testing records. The small amount of training dataset makes the problem challenging as it is easy to overfit. We test different models for prediction the revenue including GradientBoostingRegressor, svm.NuSVR, KNeighborsRegressor, RandomForestRegressor and so on. We find that an ensemble of a subset of the single model performs the best than a single prediction model under the root mean square error (RMSE) measurements. Our prediction model is ranked within top $10\%$ among all the participated teams in this Kaggle competition.
+Revenue prediction is very helpful in guiding business investment as well as company management. In this project, we build a model to predict revenue of restaurants. The dataset is provided by TFI containing 137 training records and $100,000$ testing records. The small amount of training dataset makes the problem challenging as it is easy to overfit. We test different models for prediction the revenue including GradientBoostingRegressor, svm.NuSVR, KNeighborsRegressor, RandomForestRegressor and so on. We find that an ensemble of a subset of the single model performs the best than a single prediction model under the root mean square error (RMSE) measurements. Our prediction model is ranked within top $3\%$ among all the participated teams in this Kaggle competition.
 
 
 
