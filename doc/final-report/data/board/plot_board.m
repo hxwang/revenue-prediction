@@ -1,9 +1,9 @@
-#!/usr/bin/env octave -qf
+% #!/usr/bin/env octave -qf
 
-% f = figure;
+f = figure;
 
 % set(f, 'visible', 'off');
-threash_hold = 2.6
+threash_hold = 2.6;
 
 private_s = load('private_board.txt');
 private_s = sort(private_s) / 1e6;
@@ -25,10 +25,10 @@ our_ranks = [our_private_rank, our_public_rank];
 
 plot(public_s, 'LineWidth', 2);
 hold on;
-plot(private_s, 'g','LineWidth', 2);
+plot(private_s,'LineWidth', 2);
 hold on;
 
-plot(our_ranks, our_scores, 'rd', 'MarkerSize', 12, 'MarkerFaceColor', 'auto');
+plot(our_ranks, our_scores, 'rd', 'MarkerSize', 12, 'MarkerFaceColor', 'r');
 
 h = legend('Public Board','Private Board', 'Our Scores');
 
@@ -45,6 +45,7 @@ ylim([1.4 threash_hold])
 set(gca, 'FontSize', 20, 'FontName', 'Helvetica');
 
 filename = '../../figs/pb.eps'
-fprintf(stdout, 'saving to %s\n', filename);
 
-print('-depsc', filename, '-S800,480');
+set(gcf,'paperposition',[0,0,8*1.5,4.8*1.5])
+
+print('-depsc', filename);

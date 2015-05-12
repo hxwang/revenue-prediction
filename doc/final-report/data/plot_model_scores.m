@@ -1,10 +1,11 @@
-#!/usr/bin/env octave -qf
+% #!/usr/bin/env octave -qf
 
 figure('visible','off');
+fig = figure;
 
 cv_scores = [2.31220; 2.30149; 2.30379; 2.32837; 2.33207; 2.35433];
 pb_scores = [1.64870; 1.76177; 1.73142; 1.90432; 1.80864; 1.80236];
-model_names = ['Ensamble'; 'KNN'; 'NuSVR'; 'SVR'; 'GB'; 'RF'];
+model_names = ['Ensamble'; '  KNN   '; '  NuSVR '; '   SVR  '; '   GB   '; '   RF   '];
 
 % sort by public board score
 [B, I] = sort(pb_scores);
@@ -32,4 +33,8 @@ set(h, 'FontSize', 16, 'FontName', 'Helvetica');
 
 set(gca, 'FontSize', 16, 'FontName', 'Helvetica');
 
-print('-depsc', '../figs/models.eps', '-S800,300');
+set(gcf,'paperposition',[0,0,8*1.5,3*1.5])
+
+print('-depsc', '../figs/models.eps');
+
+close(fig);

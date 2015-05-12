@@ -47,24 +47,23 @@ Computer Science Dept. George Mason University}
 \maketitle
 
 \begin{abstract}
-In this project, we worked on predicting the revenues for restaurants which is a competition hosted by Kaggle. The dataset provided by TFI contains a training set of  $137$ restaurant records, and a test set of $100, 000$  restaurant records. We pre-process data to handle with categorical attributes and missing values. We explore the dataset by studying the correlation between features, feature ranking and principal component analysis. We test different models including GradientBoostingRegressor, svm.NuSVR, KNeighborsRegressor, RandomForestRegressor and so on. We find that an ensemble of a subset of these regression models outperforms any of single models. Based on RMSE evaluation metric, our regression model ranked within top $3\%$ of all participated teams in the competition.
+In this project, we worked on predicting the revenues for restaurants which is a competition hosted by Kaggle. The dataset provided by TFI contains a training set of  $137$ restaurant records, and a test set of $100, 000$  restaurant records. We pre-process the data to handle categorical attributes and missing values. We explore the dataset by studying the correlation between features, feature ranking and principal component analysis. We test different regression models including GradientBoostingRegressor, NuSVR, KNeighborsRegressor, RandomForestRegressor and so on. We find that an ensemble of a subset of these regression models outperforms any of the single model. Based on RMSE evaluation metric, our regression model ranked within top $3\%$ among all participated teams in the competition.
 \end{abstract}
 
 \section{Introduction}
-%\todo{re-phrase this section}
 Deciding when and where to open new restaurants is largely a subjective process based on the personal judgement and experience of development teams. 
 This subjective data is difficult to accurately extrapolate across geographies and cultures.
 New restaurant sites take large investments of time and capital to get up and running. 
 When the wrong location for a restaurant brand is chosen, the site closes within 18 months and operating losses are incurred. 
 Finding a mathematical model to increase the effectiveness of investments in new restaurant sites would allow funds to invest more in other important business areas, like sustainability, innovation, and training for new employees.
-The goal of this project is to predict the revenues of restaurants by given demographic, real estate, and commercial data of existing restaurants withe their current revenues.
+The goal of this project is to predict the revenues of restaurants by given demographic, real estate, and commercial data of existing restaurants with their current revenue and gain experience of competing with other teams all over the world on Kaggle, a community of data scientists.
 
 %\subsection{}
 \section{Data Analysis and Processing}
-The dataset is from Kaggle, a community of data scientists which also hosts data science competitions. 
-Restaurant revenue prediction is one of the active competition.
-There are 137 restaurants in the training set and 100000 in the test set which is an unbalanced dataset. 
-For each record, 41 features are given detailed in \tabref{tab:features}.
+Restaurant revenue prediction is one of the active competition on Kaggle,
+the dataset is provided by TFI(Tab Food Investment),
+in which there are 137 restaurants in the training set and 100,000 in the test set which is an unbalanced dataset. 
+For each record, 41 features are given which are summarized in \tabref{tab:features}.
 
 \begin{table}[htdp]
 \footnotesize
@@ -73,7 +72,7 @@ For each record, 41 features are given detailed in \tabref{tab:features}.
 \begin{tabular}{|r|l|}
 \hline
 \bf{Name} 		& \bf{Description} \\ \hline
-\bf{Open Date}	& Categorical. Opening date for a restaurant. \\ \hline
+\bf{Open Date}	& Ordinal. Open date of the restaurant. \\ \hline
 \bf{City}		& Categorical. City that the restaurant is in. \\ \hline
 \bf{City Group} & Categorical. Type of the city. Big cities, or Other. \\ \hline
 \bf{Type}		& \begin{tabular}{@{}l@{}} Categorical. Type of the restaurant. \\ FC: Food Court, IL: Inline, DT: Drive Thru, MB: Mobile. \end{tabular}   \\ \hline
@@ -101,18 +100,19 @@ Only provided in training set.
 For each records in the test set, output the ID of that record followed by the predicted revenue.
 
 \subsubsection{Evaluation Metric}
-Submissions are scored on the root mean squared error. 
+Submissions are scored based on the RMSE(Root Mean Squared Error). 
 RMSE is very common and is a suitable general-purpose error metric. 
-Compared to the Mean Absolute Error, RMSE punishes large errors:
+Compared to the MAE(Mean Absolute Error), RMSE punishes large errors:
 \begin{equation*}
 RMSE = \sqrt{\frac{1}{n} \sum_{i=1}^{n} (y_i - \hat{y}_i)^2 }, 
 \end{equation*}
 where $\hat{y}_i$ is the predicted revenue and $y_i$ is the ground truth.
 
 \subsubsection{Public Board V.S. Private Board}
-For an active competition, each submission will be evaluated only on the 30\% of test set and scores will be published on the public board.
+For this competition, each submission will be evaluated only on the 30\% of test set and scores will be published on the public board.
 Once the competition is over, the final score is evaluated on the rest 70\% of the test set which will be published on the private board. 
-Who win the public board may not win the private board since his model may be overfitted the public board's test data.
+Who wins on the public board may not win on the private board since their model may be overfitted to the test data used by the public board as we can see later.
+Final prizes are given to the top rankers on the private board.
    
 \subsection{Data Preparation}
 \subsubsection{Revenue at a Glance}
@@ -121,71 +121,96 @@ however, there are few ``outliers'' which makes both training and prediction har
 
 \begin{figure}[htbp] %  figure placement: here, top, bottom, or page
    \centering
-   \includegraphics[width=5in]{figs/revenue.eps} 
+   \includegraphics[width=5.5in]{figs/revenue.eps} 
    \caption{Histogram of revenues.}
    \label{fig:revenue}
 \end{figure}
 
+\subsubsection{Open Date}
+In the original dataset, the {\bf Open Date} attribute is given as strings, in order to make it work with regression models, we first convert it to the numerical format as days opened since 1/1/2014.
+
 \subsubsection{Features Selection}
 
 {\bf Missing Categories} 
-After a quick exploration of both training set and test set we found that both {\bf City} and {\bf Type} features have unseen categories in the training set.
+After a quick exploration of both training set and test set we found that both {\bf City} and {\bf Type} features have unseen categories in the test set.
 There are total 63 cities in the entire dataset, too many new features will be added if we create a binary feature for each city and 
-the there is no correlation between these two features and revenue.
+the there is no strong correlation between these two features and revenue.
 Thus we decided to drop both {\bf City} and {\bf Type} features.
 
-{\bf Feature Rank}
-We use feature \textbf{Select attributes} to rank features. In specific, we use attribute evaluator \textbf{ReliefAttributeEval} with search method \textbf{Ranker}, the cross validation is set as 5 folds. ReliefAttributeEval is an attribute evaluator that evaluates the worth of an attribute by repeatedly sampling an instance and considering the value of the given attribute for the nearest instance of the same and different class. It can operate on both discrete and continuous class data. We get the following feature rank results.
+{\bf Feature Ranking}
+We use \textbf{Feature Selection} module in Weka to rank features. In specific, we use attribute evaluator \textbf{ReliefAttributeEval} with search method \textbf{Ranker}, the cross validation is set to 5 folds. ReliefAttributeEval is an attribute evaluator that evaluates the worth of an attribute by repeatedly sampling an instance and considering the value of the given attribute for the nearest instance of the same and different class. It can operate on both discrete and continuous class data. 
+We list the top 10 ranked features in \tabref{tab:feature_ranking} from which we can see, the {\bf Open Date} attributes is obviously the most important feature while other features are much less important.
+
+\begin{table}[htdp]
+\caption{Feature Ranking}
+\begin{center}
+\begin{tabular}{|c|c|c|c|}
+\hline
+Average Merit   &   Average Rank         & Attribute \\ \hline
+$ 0.020 \pm 0.007$ &  $   1.0 \pm 0.00 $ & Open Date \\ \hline
+$ 0.002 \pm 0.002$ &  $   5.2 \pm 2.93 $ & P13 \\ \hline
+$ 0.003 \pm 0.005$ &  $   5.8 \pm 4.21 $ & P29 \\ \hline
+$ 0.001 \pm 0.003$ &  $   6.6 \pm 2.15 $ & P12 \\ \hline
+$-0.001 \pm 0.005$ &  $   7.0 \pm 4.65 $ & P17 \\ \hline
+$ 0.002 \pm 0.004$ &  $   7.2 \pm 5.78 $ & P21 \\ \hline
+$ 0.000 \pm 0.002$ &  $   7.4 \pm 3.50 $ & P10 \\ \hline
+$ 0.000 \pm 0.001$ &  $   7.6 \pm 4.27 $ & P8 \\ \hline
+$-0.002 \pm 0.004$ &  $   9.4 \pm 4.22 $ & P28 \\ \hline
+$-0.001 \pm 0.002$ &  $   9.6 \pm 6.25 $ & P4 \\ \hline
+\end{tabular}
+\end{center}
+\label{tab:feature_ranking}
+\end{table}%
 
 
-{\scriptsize
-\begin{verbatim}
-=== Attribute selection 5 fold cross-validation seed: 10 ===
-
-average merit      average rank  attribute
- 0.02  +- 0.007      1   +- 0        1 Open Date
- 0.002 +- 0.002      5.2 +- 2.93    17 P13
- 0.003 +- 0.005      5.8 +- 4.21    33 P29
- 0.001 +- 0.003      6.6 +- 2.15    16 P12
--0.001 +- 0.005      7   +- 4.65    21 P17
- 0.002 +- 0.004      7.2 +- 5.78    25 P21
- 0     +- 0.002      7.4 +- 3.5     14 P10
- 0     +- 0.001      7.6 +- 4.27    12 P8
--0.002 +- 0.004      9.4 +- 4.22    32 P28
--0.001 +- 0.002      9.6 +- 6.25     8 P4
--0.003 +- 0.004     10.2 +- 3.12    40 P36
--0.003 +- 0.003     10.8 +- 2.56    22 P18
--0.005 +- 0.004     14   +- 3.03    38 P34
--0.005 +- 0.003     15   +- 3.46    13 P9
--0.006 +- 0.003     16.4 +- 5.35    26 P22
--0.006 +- 0.004     16.6 +- 5.68    10 P6
--0.008 +- 0.006     18.8 +- 5.67    29 P25
--0.008 +- 0.004     19.2 +-10.17    15 P11
--0.008 +- 0.005     19.6 +- 2.73     5 P1
--0.008 +- 0.004     20   +- 5.93     7 P3
--0.009 +- 0.005     21.2 +- 1.6     20 P16
--0.009 +- 0.004     21.4 +- 7.94     9 P5
--0.011 +- 0.006     23.4 +- 8.69    24 P20
--0.011 +- 0.005     23.6 +- 3.72    18 P14
--0.011 +- 0.004     23.8 +- 2.32    39 P35
--0.011 +- 0.005     24.6 +- 2.94    36 P32
--0.012 +- 0.003     26.2 +- 3.66    27 P23
--0.014 +- 0.006     28   +- 4.15    30 P26
--0.015 +- 0.004     28.4 +- 5.57     4 Type
--0.015 +- 0.006     28.6 +- 5.54    34 P30
--0.015 +- 0.007     29.6 +- 3.93    37 P33
--0.016 +- 0.006     32.4 +- 4.08    35 P31
--0.016 +- 0.005     32.6 +- 3.01    31 P27
--0.017 +- 0.007     33.4 +- 3.98    28 P24
--0.017 +- 0.004     34   +- 2.61    11 P7
--0.019 +- 0.007     34.2 +- 3.19    41 P37
--0.018 +- 0.006     34.2 +- 2.23    19 P15
--0.018 +- 0.004     34.6 +- 2.87    23 P19
--0.026 +- 0.004     38.4 +- 0.8      6 P2
--0.038 +- 0.004     40.2 +- 0.4      3 City Group
--0.04  +- 0.005     40.8 +- 0.4      2 City
- \end{verbatim}
-}
+%{\scriptsize
+%\begin{verbatim}
+%=== Attribute selection 5 fold cross-validation seed: 10 ===
+%
+%average merit      average rank  attribute
+% 0.02  +- 0.007      1   +- 0        1 Open Date
+% 0.002 +- 0.002      5.2 +- 2.93    17 P13
+% 0.003 +- 0.005      5.8 +- 4.21    33 P29
+% 0.001 +- 0.003      6.6 +- 2.15    16 P12
+%-0.001 +- 0.005      7   +- 4.65    21 P17
+% 0.002 +- 0.004      7.2 +- 5.78    25 P21
+% 0     +- 0.002      7.4 +- 3.5     14 P10
+% 0     +- 0.001      7.6 +- 4.27    12 P8
+%-0.002 +- 0.004      9.4 +- 4.22    32 P28
+%-0.001 +- 0.002      9.6 +- 6.25     8 P4
+%-0.003 +- 0.004     10.2 +- 3.12    40 P36
+%-0.003 +- 0.003     10.8 +- 2.56    22 P18
+%-0.005 +- 0.004     14   +- 3.03    38 P34
+%-0.005 +- 0.003     15   +- 3.46    13 P9
+%-0.006 +- 0.003     16.4 +- 5.35    26 P22
+%-0.006 +- 0.004     16.6 +- 5.68    10 P6
+%-0.008 +- 0.006     18.8 +- 5.67    29 P25
+%-0.008 +- 0.004     19.2 +-10.17    15 P11
+%-0.008 +- 0.005     19.6 +- 2.73     5 P1
+%-0.008 +- 0.004     20   +- 5.93     7 P3
+%-0.009 +- 0.005     21.2 +- 1.6     20 P16
+%-0.009 +- 0.004     21.4 +- 7.94     9 P5
+%-0.011 +- 0.006     23.4 +- 8.69    24 P20
+%-0.011 +- 0.005     23.6 +- 3.72    18 P14
+%-0.011 +- 0.004     23.8 +- 2.32    39 P35
+%-0.011 +- 0.005     24.6 +- 2.94    36 P32
+%-0.012 +- 0.003     26.2 +- 3.66    27 P23
+%-0.014 +- 0.006     28   +- 4.15    30 P26
+%-0.015 +- 0.004     28.4 +- 5.57     4 Type
+%-0.015 +- 0.006     28.6 +- 5.54    34 P30
+%-0.015 +- 0.007     29.6 +- 3.93    37 P33
+%-0.016 +- 0.006     32.4 +- 4.08    35 P31
+%-0.016 +- 0.005     32.6 +- 3.01    31 P27
+%-0.017 +- 0.007     33.4 +- 3.98    28 P24
+%-0.017 +- 0.004     34   +- 2.61    11 P7
+%-0.019 +- 0.007     34.2 +- 3.19    41 P37
+%-0.018 +- 0.006     34.2 +- 2.23    19 P15
+%-0.018 +- 0.004     34.6 +- 2.87    23 P19
+%-0.026 +- 0.004     38.4 +- 0.8      6 P2
+%-0.038 +- 0.004     40.2 +- 0.4      3 City Group
+%-0.04  +- 0.005     40.8 +- 0.4      2 City
+% \end{verbatim}
+%}
 
 
 \subsubsection{Principal Component Analysis (PCA)} We apply principal component analysis after cleaning the data (i.e., transform open data and categorical data to numeric data). Principal components analysis is useful in reducing dimensionality by choosing enough eigenvectors to account for some percentage of the variance of in the original data. Here we set the variance as $95\%$. We conduct principal components on both the training dataset, testing dataset, and the combination of training and testing dataset. 
@@ -215,7 +240,7 @@ $15$ attributes are sufficient   to cover $95\%$ variance for the training set, 
 %\end{figure}
 
 
-\subsection{Correlation among Features} We further study the correlation among features in the training set and testing set respectively. We plot the results in Figure~\ref{fig_corr_train} and Figure~\ref{fig_corr_test} respectively. Though the correlations among features pairs in test set follow the same pattern of that in training set, features are less correlated which also confirms the PCA result that test set is hard to compress.
+\subsubsection{Correlation Among Features} We further study the correlation among features in the training set and testing set respectively. We plot the results in Figure~\ref{fig_corr_train} and Figure~\ref{fig_corr_test} respectively. Though the correlations among features pairs in test set follow the same pattern of that in training set, features are less correlated which also confirms the PCA result that test set is hard to compress.
 
 \begin{figure}[!ht] %  figure placement: here, top, bottom, or page
    \centering
@@ -234,11 +259,11 @@ We choose to use standardization on the entire dataset (stack training set and t
 \section{Training and Testing}
 
 \subsection{Toolbox}
-We use Scikit-Learn which is a open source python library built on NumPy, SciPy, and matplotlib. 
+We use Scikit-Learn which is a open source python library built on NumPy, SciPy and matplotlib. 
 It provides simple and efficient tools for data mining and data analysis range from Classification, Regression, Clustering, Dimensionality reduction, Model selection and Preprocessing.
 
 \subsection{Single Model Selection}
-We start from single model, model selection is done based on the average error of a 3 folds cross-validation.
+We start from single model, model selection is done based on the average RMSE of a 3-folds cross-validation.
 Models with their best cross-validation scores and the parameters are shown in \tabref{tab:single_model}, and we evaluated them on the public board, both score and rank in the public board are shown in \tabref{tab:single_model}.
 From \tabref{tab:single_model} we can see that, with a well-tuned single model, we can only beat about half of the teams.
 The next step is to ensemble those single models.
@@ -292,12 +317,12 @@ GB  & 0.25 & \begin{tabular}{@{}l@{}} n-estimators=100, learning-rate=1.0, \\ ma
 
 
 \subsection{Visualize Prediction Results}
-We visualize the prediction results in the cross-validation process to see the performance of different prediction model. Figure~\ref{fig:predict_results} demonstrates an example of the prediction results under different prediction model, namely \textbf{GradientBoostingRegressor}, \textbf{svm.NuSVR}, \textbf{KNeighborsRegressor} and \textbf{Ensemble} approaches respectively.
+We visualize the prediction results in the cross-validation process to see the performance of different prediction model. Figure~\ref{fig:predict_results} demonstrates an example of the prediction results under different prediction model, namely \textbf{GradientBoostingRegressor}, \textbf{NuSVR}, \textbf{KNeighborsRegressor} and \textbf{Ensemble} approaches respectively.
 
 \begin{figure*}[h]
 \centering
 \subfigure[GradientBoostingRegressor]{\includegraphics[width=.49\textwidth]{figs/GB_predit.eps}\label{fig:gboost}}
-\subfigure[svm.NuSVR]{\includegraphics[width=.49\textwidth]{figs/NuSVR_predit.eps}\label{fig:usvr}}
+\subfigure[NuSVR]{\includegraphics[width=.49\textwidth]{figs/NuSVR_predit.eps}\label{fig:usvr}}
 \subfigure[KNeighborsRegressor]{\includegraphics[width=.49\textwidth]{figs/KNN_predit.eps}\label{fig:knn}}
 \subfigure[Ensemble]{\includegraphics[width=.49\textwidth]{figs/Ensamble_predit.eps}\label{fig:ensemble}}
 \caption{
@@ -305,7 +330,10 @@ An example the of prediction results of the different prediction model.}
 \label{fig:predict_results}
 \end{figure*}
 
-From Figure~\ref{fig:predict_results}, we can see that all prediction models could predict the instances with lower revenue better, and all of them could not predict the outliers which have very high revenues. In addition, the ensemble approach is a combination of the other three models, thus it can avoid some mistake predictions made by a specific models. For example, in the figure, we can see that \textbf{KNeighborsRegressor} mispredict some low-revenue instances, which are predicted by \textbf{GradientBoostingRegressor} and \textbf{svm.NuSVR} more precisely. The ensemble approach predicts better than  \textbf{KNeighborsRegressor} by combining results from both \textbf{GradientBoostingRegressor} and \textbf{svm.NuSVR}.
+From \figref{fig:predict_results}, we can see that all regression models predict the instances with lower revenue better, and none of them could precisely predict the outliers which have very high revenues. 
+In addition, the ensemble approach is a combination of the other three models, thus it can avoid some mistake predictions made by a specific models.
+For example, in \figref{fig:predict_results}, we can see that \textbf{KNeighborsRegressor} mispredict some low-revenue instances, which are predicted by \textbf{GradientBoostingRegressor} and \textbf{NuSVR} more precisely. 
+The ensemble approach predicts better than  \textbf{KNeighborsRegressor} by combining results from both \textbf{GradientBoostingRegressor} and \textbf{NuSVR}.
 
  
 \subsection{Unbalanced Dataset}

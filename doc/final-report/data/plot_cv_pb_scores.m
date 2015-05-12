@@ -1,10 +1,11 @@
-#!/usr/bin/env octave -qf
-
+% #!/usr/bin/env octave -qf
 % figure('visible','off');
+
+f = figure;
 
 s = load('scores.txt');
 s = s / 1e6;
-plot(s(:,1), s(:,2), 'bo', 'MarkerSize', 12, 'MarkerFaceColor', 'auto');
+plot(s(:,1), s(:,2), 'bo', 'MarkerSize', 12, 'MarkerFaceColor', 'b');
 
 grid on;
 
@@ -20,6 +21,10 @@ ylim([1.6 2.0])
 
 set(gca, 'FontSize', 20, 'FontName', 'Helvetica');
 
-print('-depsc', '../figs/cv_pb_scores.eps', '-S800,400');
+set(gcf,'paperposition',[0,0,8*1.5,4.0*1.5])
+
+print('-depsc', '../figs/cv_pb_scores.eps');
 
 corrcoef(s(:,1), s(:,2))
+
+close(f);
