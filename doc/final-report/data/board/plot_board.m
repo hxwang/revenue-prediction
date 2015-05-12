@@ -25,7 +25,7 @@ our_ranks = [our_private_rank, our_public_rank];
 
 plot(public_s, 'LineWidth', 2);
 hold on;
-plot(private_s, 'Color',[0.1,1.0,0.4], 'LineWidth', 2);
+plot(private_s, 'Color',[0.1,1.0,0.4], 'LineWidth', 4);
 hold on;
 
 plot(our_ranks, our_scores, 'rd', 'MarkerSize', 12, 'MarkerFaceColor', 'r');
