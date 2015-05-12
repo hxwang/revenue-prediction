@@ -4,7 +4,7 @@
 f = figure;
 
 s = load('scores.txt');
-s = s / 1e6;
+s = s;
 plot(s(:,1), s(:,2), 'bo', 'MarkerSize', 12, 'MarkerFaceColor', 'b');
 
 grid on;
@@ -17,11 +17,11 @@ h = legend('RMSE');
 
 set(h, 'FontSize', 20, 'FontName', 'Helvetica');
 
-ylim([1.6 2.0])
+ylim([1.6e6 2.0e6])
 
 set(gca, 'FontSize', 20, 'FontName', 'Helvetica');
 
-set(gcf,'paperposition',[0,0,8*1.5,4.0*1.5])
+set(gcf,'paperposition',[0,0,8*1.5,5.0*1.5])
 
 print('-depsc', '../figs/cv_pb_scores.eps');
 

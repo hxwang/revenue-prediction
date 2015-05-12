@@ -1,17 +1,17 @@
-#!/usr/bin/env octave -qf
+% #!/usr/bin/env octave -qf
 
-figure('visible','off');
+% figure('visible','off');
 
-model_names = ['GB'; 'KNN'; 'NuSVR'; 'Ensamble'];
+fig=figure;
+
+model_names = ['Ensamble'; '  KNN   '; '  NuSVR '; '   GB   ';];
 
 gt = load('GT.txt');
-gt = gt / 1e6;
 
 for i=1:size(model_names)
-    filename = strcat(model_names(i,:), '.txt');
+    filename = strcat(strtrim(model_names(i,:)), '.txt');
     
-    p = load(filename);
-    p = p/1e6;
+    p = load(filename);    
 
     hold off;
     plot(p, 'g', 'LineWidth', 8, 'Color', [0,0.5,0]);
@@ -19,19 +19,20 @@ for i=1:size(model_names)
     plot(gt, 'bo', 'MarkerSize', 10, 'MarkerFaceColor', 'b');
 
     xlabel('Instances', 'FontSize', 24, 'FontName', 'Helvetica');
-    ylabel('Revenue 10^6', 'FontSize', 24, 'FontName', 'Helvetica');
+    ylabel('Revenue', 'FontSize', 24, 'FontName', 'Helvetica');
 
     set(gca, 'FontSize', 24, 'FontName', 'Helvetica');
 
-    h = legend({'Prediction', 'Groud Truth'}, 'Location', 'northeast');
+    h = legend({'Prediction', 'Ground Truth'}, 'Location', 'northeast');
 
-    ylim([0, 25]);
+    ylim([0, 2.5e7]);
 
     set(h, 'FontSize', 24, 'FontName', 'Helvetica');
 
-    output = strcat('../../figs/', model_names(i,:), '_predit.eps');
-    fprintf(stdout, 'saving to %s\n', output);
-    print('-depsc', output, '-S800,540');
+    output = strcat('../../figs/', strtrim(model_names(i,:)), '_predit.eps');
+%     fprintf(stdout, 'saving to %s\n', output);
+    set(gcf,'paperposition',[0,0,8*1.5,5.0*1.5])
+    print('-depsc', output);
 end
 
 

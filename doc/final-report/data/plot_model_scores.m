@@ -3,8 +3,8 @@
 figure('visible','off');
 fig = figure;
 
-cv_scores = [2.31220; 2.30149; 2.30379; 2.32837; 2.33207; 2.35433];
-pb_scores = [1.64870; 1.76177; 1.73142; 1.90432; 1.80864; 1.80236];
+cv_scores = [2.31220; 2.30149; 2.30379; 2.32837; 2.33207; 2.35433]*1e6;
+pb_scores = [1.64870; 1.76177; 1.73142; 1.90432; 1.80864; 1.80236]*1e6;
 model_names = ['Ensamble'; '  KNN   '; '  NuSVR '; '   SVR  '; '   GB   '; '   RF   '];
 
 % sort by public board score
@@ -19,11 +19,13 @@ scores = [cv_scores, pb_scores];
 
 bar(scores);
 
+set(gca,'ygrid','on')
+
 % title('RMSE / 10^6 ', 'FontSize', 16, 'FontWeight', 'bold', 'FontName', 'Helvetica');
 % xlabel('Models', 'FontSize', 16, 'FontName', 'Helvetica');
 ylabel('RMSE / 10^6', 'FontSize', 16, 'FontName', 'Helvetica');
 
-ylim([1.6 2.5]);
+ylim([1.6e6 2.5e6]);
 
 set(gca, 'XTickLabel', model_names);
 
@@ -33,7 +35,7 @@ set(h, 'FontSize', 16, 'FontName', 'Helvetica');
 
 set(gca, 'FontSize', 16, 'FontName', 'Helvetica');
 
-set(gcf,'paperposition',[0,0,8*1.5,3*1.5])
+set(gcf,'paperposition',[0,0,8*1.5,4*1.5])
 
 print('-depsc', '../figs/models.eps');
 
